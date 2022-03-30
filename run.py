@@ -8,6 +8,11 @@ response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{value}")
 pokedex_data = response.json()
 print(pokedex_data)"""
 
+GENERATION = 1
+gen_resource = pb.generation(GENERATION)
+
+
+
 
 def clear_console():
     """
@@ -92,15 +97,21 @@ def make_menu_choice():
         menu_selection = int(input(""))
         if menu_selection == 1:
             print("choice 1")
-            open_description():
+            open_description()
+            time.sleep(2)
+            clear_console()
 
         elif menu_selection == 2:
-            print("yep")
-            get_pokemon_data()
+            time.sleep(2)
+            clear_console()
+            get_pokemon_data()            
         
         elif menu_selection == 3:
             print("ok")
+            time.sleep(2)
+            clear_console()
             catch_pokemon()
+            
         
         else:
             print("Not a valid input. Please type '1', '2' or '3' to make your selection")
@@ -109,9 +120,35 @@ def make_menu_choice():
         print("Not a valid input. Please type '1', '2' or '3' to make your selection")
         make_menu_choice()
 
+
+def get_pokemon_data():
+    """
+    Allows user to key in name or id of pokemon and 
+    seek out information about it
+    """
+    print("""Please enter the name or id (1-150) of the pokemon you wish to search for\n""")
+
+    select_pokemon = input("")
+    possible_ids = [poke.id for poke in gen_resource.pokemon_species]
+    gen_1_pokemon = [pokemon.name.title() for pokemon in gen_resource.pokemon_species]
     
+
+    
+    if select_pokemon.capitalize() in gen_1_pokemon:
+        pokemon_name = pb.pokemon(select_pokemon.lower())
+        print(f"You have chosen {pokemon_name}")
+        print("\n")
+        print(f"{pokemon_name} is number {pokemon_name.id}")
+    
+    elif int(select_pokemon) in possible_ids:
+        pokemon_name = pb.pokemon(int(select_pokemon)).name.title()
+        print(f"Pokemon number {select_pokemon} is {pokemon_name}")
         
+    else:
+        print("Dang yo")
             
+    print(f"You have selected {pokemon_name}")
+    print(f"What do you want to know about {pokemon_name}? Select 1 for height")
 
 
 
