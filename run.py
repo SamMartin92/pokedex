@@ -6,7 +6,7 @@ import random
 
 
 GENERATION = 1
-gen_resource = pb.generation(GENERATION)
+gen_resource = None
 
 
 def clear_console():
@@ -22,8 +22,8 @@ def run_landing_page():
     print("| |__) | | |  | | | ' /  | |__    | |  | | | |__     \ V / ")
     print("|  ___/  | |  | | |  <   |  __|   | |  | | |  __|     > <  ")
     print("| |      | |__| | | . \  | |____  | |__| | | |____   / . \ ")
-    print("|_|       \____/  |_|\_\ |______| |_____/  |______| /_/ \_\ ")                                                   
-  
+    print("|_|       \____/  |_|\_\ |______| |_____/  |______| /_/ \_\ ")
+
 
     print('''
     MMMMMMMMMMMMMMMMMMMMMMMWN0xoc;'....     ....';cok0NWMMMMMMMMMMMMMMMMMMMMMMM
@@ -66,7 +66,6 @@ def run_landing_page():
     time.sleep(2)
     clear_console()
 
-
 def open_menu():
     """
     Opens the menu after landing page
@@ -88,24 +87,23 @@ def make_menu_choice():
         menu_selection = int(input(""))
         if menu_selection == 1:
             print("choice 1")
-            open_description()
+            # open_description()
             time.sleep(2)
             clear_console()
 
         elif menu_selection == 2:
             time.sleep(2)
             clear_console()
-            find_pokemon()       
-        
+            find_pokemon()
+
         elif menu_selection == 3:
             print("ok")
             time.sleep(2)
             clear_console()
             catch_pokemon()
-                    
+
         else:
-            print("Not a valid input. Please type '1', '2' or '3' to make your selection")
-            make_menu_choice()
+            raise ValueError
     except ValueError:
         print("Not a valid input. Please type '1', '2' or '3' to make your selection")
         make_menu_choice()
@@ -116,52 +114,49 @@ def find_pokemon():
     Allows user to key in name or id of pokemon and
     seek out information about it
     """
-    print("""Please enter the name or id (1-150) of the pokemon you wish to search for\n""")
-
     try:
-        select_pokemon = input("")
+        selected_pokemon_id_or_name = input("Please enter the name or id (1-150) of the pokemon you wish to search for\n")
         gen_1_pokemon = [pokemon.name.title() for pokemon in gen_resource.pokemon_species]
-         
-        if select_pokemon.capitalize() in gen_1_pokemon:
-            pokemon_name = pb.pokemon(select_pokemon.lower())
-            pokemon_selected(pokemon_name)  
-       
-        elif int(select_pokemon) in range(1,151):
-            pokemon_name = pb.pokemon(int(select_pokemon))
-            pokemon_selected(pokemon_name)           
-        else:
-            print("Not a valid entry.")
-            find_pokemon()
 
+        #Name search
+        if selected_pokemon_id_or_name.capitalize() in gen_1_pokemon:
+            pb_pokemon_data = pb.pokemon(selected_pokemon_id_or_name.lower())
+            display_pokemon(pb_pokemon_data)
+        #Id search
+        elif int(selected_pokemon_id_or_name) in range(1,151):
+            pb_pokemon_data = pb.pokemon(int(selected_pokemon_id_or_name))
+            display_pokemon(pb_pokemon_data)
+        else:
+            raise ValueError
     except ValueError:
             print("Not a valid entry.")
             find_pokemon()
-    
-def pokemon_selected(pokemon):
+
+def display_pokemon(pb_pokemon_data):
     """
     Displays info about pokemon and launches get_pokemon_data
     """
     response = requests.get(f"https://pokeapi.co/api/v2/pokemon-species/{pokemon.id}/")
-    pokemon_species = response.json()
-    description = pokemon_species["flavor_text_entries"]
-    print(f"You have chosen pokemon number {pokemon.id}: {pokemon}")
+    pokemon_api_response = response.json()
+    name = pokemon_api_response["name"]
+    description = pokemon_api_response["flavor_text_entries"]
+    print(f"You have chosen pokemon number {pb_pokemon_data.id}: {name}")
     print("\n")
-    print(f"Some information about {pokemon}:")
+    print(f"Some information about {name}:")
     print("\n")
-    print(f"{description[0]['flavor_text']}")
+    print(f"{description[0]['flavor_text'].replace('/n', '')}")
     print("\n")
-    print(f"{description[2]['flavor_text']}")
+    print(f"{description[2]['flavor_text'].replace('/n', '')}")
     print("\n")
-    print(f"What do you want to know about {pokemon}?")
-    get_pokemon_data(pokemon)
-    
+    print(f"What else do you want to know about {name}?")
+    get_more_pokemon_data(pb_pokemon_data)
 
 
-def get_pokemon_data(pokemon):
+
+def get_more_pokemon_data(pb_pokemon_data):
     """
     Allows user to select the data they wish to see about chosen pokemon
     """
-    
 
     print("\n\n")
     print("Input 1 for type")
@@ -171,31 +166,34 @@ def get_pokemon_data(pokemon):
     print("Input 6 for evolution chain")
     print("Input 7 to return to main menu")
 
-    data_select = input("")
-    if data_select == "1":
-        clear_console()
-        for type_slot in pokemon.types:
-            print(f"{pokemon} has the following type(s):")
-            print('{}: {}'.format(type_slot.slot, type_slot.type.name.title()))
-            get_pokemon_data(pokemon)
-    elif data_select =="2":
-        clear_console()
-        print(f"{pokemon} is {pokemon.height} decimetres in height.")
-        get_pokemon_data(pokemon)
-    elif data_select =="3":
-        clear_console()
-        print(f"{pokemon} is {pokemon.weight} hectograms in weight.")
-        get_pokemon_data(pokemon)
-    elif data_select == "5":
-        get_location_data(pokemon)
-    elif data_select == "6":
-        clear_console()
-        get_evolution_chain(pokemon)
-    elif data_select =="7":
-        open_menu()
-    else:
+    try:
+        data_select = input("")
+        if data_select == "1":
+            clear_console()
+            for type_slot in pb_pokemon_data.types:
+                print(f"{pb_pokemon_data} has the following type(s):")
+                print('{}: {}'.format(type_slot.slot, type_slot.type.name.title()))
+                get_more_pokemon_data(pb_pokemon_data)
+        elif data_select == "2":
+            clear_console()
+            print(f"{pb_pokemon_data} is {pb_pokemon_data.height} decimetres in height.")
+            get_more_pokemon_data(pb_pokemon_data)
+        elif data_select =="3":
+            clear_console()
+            print(f"{pb_pokemon_data} is {pb_pokemon_data.weight} hectograms in weight.")
+            get_more_pokemon_data(pb_pokemon_data)
+        elif data_select == "5":
+            get_location_data(pb_pokemon_data)
+        elif data_select == "6":
+            clear_console()
+            get_evolution_chain(pb_pokemon_data)
+        elif data_select =="7":
+            open_menu()
+        else:
+            raise ValueError
+    except ValueError:
         print("That is not a valid input")
-        get_pokemon_data(pokemon)
+        get_more_pokemon_data(pb_pokemon_data)
 
 
 def get_location_data(pokemon):
@@ -204,7 +202,8 @@ def get_location_data(pokemon):
     """
     response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{pokemon.id}/encounters")
     location_info = response.json()
-    
+    #Print location data here and call
+
 
 
 def get_evolution_chain(pokemon):
@@ -227,52 +226,42 @@ def get_evolution_chain(pokemon):
         print(f"{evolves_to[0]['species']['name']} evolves into {evolves_to[0]['evolves_to'][0]['species']['name']} ")
 
 
-def catch_pokemon():
-    """
-    Opens catch pokemon feature. Randomly generates pokemon from habitat and user can 'catch' or get info on pokemon
-    """
+def show_and_return_pokemon_habitats():
     habitats = requests.get("https://pokeapi.co/api/v2/pokemon-habitat/")
     available_habitats = habitats.json()['results']
-    
     print("Where would you like to search for pokemon?")
     print("\n")
     for x in available_habitats:
         print('{}:{}'.format(available_habitats.index(x)+ 1, x['name']))
     print("\n")
-    print("Input 1-9 to choose the habitat you want to search")
-
-    habitat_select = input("")
-
-    if habitat_select == "1":
-        for x in range(1,151):
-            response = requests.get(f"https://pokeapi.co/api/v2/pokemon-species/{x}/")
-            pokemon_species = response.json()
-            cave_pokemon = []
-            if pokemon_species["habitat"]["name"] == "cave":
-                cave_pokemon.append(pokemon_species["name"])
-                random_cave_pokemon = random.choice(cave_pokemon)
-        print(f"A wild {random_cave_pokemon} appeared!")
-
-    elif habitat_select =="2":
-        for x in range(1,151):
-            response = requests.get(f"https://pokeapi.co/api/v2/pokemon-species/{x}/")
-            pokemon_species = response.json()
-            forest_pokemon = []
-            if pokemon_species["habitat"]["name"] == "forest":
-                forest_pokemon.append(pokemon_species["name"])
-                random_forest_pokemon = random.choice(forest_pokemon)
-        print(f"A wild {random_forest_pokemon} appeared!")
-
-                
-
-       
+    return available_habitats
 
 
 
+def catch_pokemon():
+    """
+    Opens catch pokemon feature. Randomly generates pokemon from habitat and user can 'catch' or get info on pokemon
+    """
+    available_habitats = show_and_return_pokemon_habitats()
+
+    habitat_id_selected = int(input(""))
+
+    #Assuming here that habitat_select is a integer
+    selected_habitat = available_habitats[habitat_id_selected - 1]
+    url_for_habitat_species = selected_habitat['url']
+    response = requests.get(url_for_habitat_species)
+    response_json = response.json()
+    pokemon_for_selected_habitat = response_json["pokemon_species"]
+    random_habitat_pokemon = random.choice(pokemon_for_selected_habitat)
+    print(f"A wild {random_habitat_pokemon['name']} appeared!"
 
 
 
-run_landing_page()
-open_menu()
-make_menu_choice()
+def main():
+    global gen_resource
+    run_landing_page()
+    gen_resource = pb.generation(GENERATION)
+    open_menu()
+    make_menu_choice()
 
+main()
