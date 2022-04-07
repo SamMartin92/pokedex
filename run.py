@@ -65,6 +65,9 @@ def run_landing_page():
 
     time.sleep(2)
     clear_console()
+    print("Initiating Pokadex...")
+    time.sleep(1)
+    clear_console()
 
 def open_menu():
     """
@@ -76,6 +79,7 @@ def open_menu():
     print("- (2) Search Pokemon")
     print("- (3) Catch a pokemon")
     print("Please input '1', '2' or '3' below to select from the menu")
+    make_menu_choice()
 
 
 def make_menu_choice():
@@ -153,7 +157,10 @@ def display_flavour_text(pb_pokemon_data):
     print("\n")
     print(f"{description[1]['flavor_text'].replace('', ' ')}")
     print("\n")
-    print(f"{description[2]['flavor_text'].replace('', ' ')}")
+    if description[1]['flavor_text'] == description[2]['flavor_text']:
+        print(f"{description[5]['flavor_text'].replace('', '')}")
+    else:
+        print(f"{description[2]['flavor_text'].replace('', '')}")
     print("\n")
 
 
@@ -164,7 +171,7 @@ def get_more_pokemon_data(pb_pokemon_data):
     response = requests.get(f"https://pokeapi.co/api/v2/pokemon-species/{pb_pokemon_data.id}/")
     pokemon_api_response = response.json()
     name = pokemon_api_response["name"]
-    print(f"What else do you want to know about {name.capitalize}?")
+    print(f"What else do you want to know about {name.capitalize()}?")
     print("\n\n")
     print("Input 1 for type")
     print("Input 2 for height")
@@ -177,24 +184,26 @@ def get_more_pokemon_data(pb_pokemon_data):
         data_select = input("")
         if data_select == "1":
             clear_console()
-            for type_slot in pb_pokemon_data.types:
-                print(f"{pb_pokemon_data} has the following type(s):")
+            print(f"{name.capitalize()} has the following type(s):")
+            for type_slot in pb_pokemon_data.types:                
                 print('{}: {}'.format(type_slot.slot, type_slot.type.name.title()))
-                get_more_pokemon_data(pb_pokemon_data)
+            get_more_pokemon_data(pb_pokemon_data)
         elif data_select == "2":
             clear_console()
-            print(f"{pb_pokemon_data} is {pb_pokemon_data.height} decimetres in height.")
+            print(f"{name.capitalize()} is {pb_pokemon_data.height} decimetres in height.")
             get_more_pokemon_data(pb_pokemon_data)
         elif data_select =="3":
             clear_console()
-            print(f"{pb_pokemon_data} is {pb_pokemon_data.weight} hectograms in weight.")
+            print(f"{name.capitalize()} is {pb_pokemon_data.weight} hectograms in weight.")
             get_more_pokemon_data(pb_pokemon_data)
         elif data_select == "5":
             get_location_data(pb_pokemon_data)
         elif data_select == "6":
             clear_console()
             get_evolution_chain(pb_pokemon_data)
+            get_more_pokemon_data(pb_pokemon_data)
         elif data_select =="7":
+            clear_console()
             open_menu()
         else:
             raise ValueError
@@ -217,6 +226,7 @@ def get_evolution_chain(pokemon):
     """
     Retrieves evoluton data for selected pokemon
     """
+    capitalized_pokemon = str(pokemon).capitalize()
     response = requests.get(f"https://pokeapi.co/api/v2/pokemon-species/{pokemon.id}/")
     pokemon_species = response.json()
     evolution_data = pokemon_species['evolution_chain']['url']
@@ -225,13 +235,13 @@ def get_evolution_chain(pokemon):
     evolves_to = evolution_tree["evolves_to"]
 
     if evolves_to == []:
-        print(f"{pokemon} has no evolutionary chain.")
+        print(f"{capitalized_pokemon} has no evolutionary chain.\n")
     elif evolves_to[0]["evolves_to"] ==[]:
-        print(f"{evolution_tree['species']['name']} evolves into {evolves_to[0]['species']['name']}")
+        print(f"{evolution_tree['species']['name'].capitalize()} evolves into {evolves_to[0]['species']['name'].capitalize()}")
     elif len(evolves_to) == 1:
         print(f"{evolution_tree['species']['name']} evolves into {evolves_to[0]['species']['name']}")
         print(f"{evolves_to[0]['species']['name']} evolves into {evolves_to[0]['evolves_to'][0]['species']['name']} ")
-
+    time.sleep(1)
 
 def show_and_return_pokemon_habitats():
     """
@@ -263,18 +273,34 @@ def encounter_wild_pokemon():
     response_json = response.json()
     pokemon_for_selected_habitat = response_json["pokemon_species"]
     random_habitat_pokemon = random.choice(pokemon_for_selected_habitat)
-    print(f"A wild {random_habitat_pokemon['name']} appeared!")
     pb_pokemon_data = pb.pokemon(random_habitat_pokemon['name'])
+    print(f"A wild {random_habitat_pokemon['name'].capitalize()} appeared!")
     print("Checking pokadex...")
+    time.sleep(1)
     display_flavour_text(pb_pokemon_data)
-    print("What would you like to do next?")
-    print(f"Learn more about {pb_pokemon_data}?")
+    make_wild_pokemon_choice(pb_pokemon_data)
+
+def make_wild_pokemon_choice(pb_pokemon_data):
+    """
+    User makes the choice to learn more about pokemon, catch pokemon or return to menu
+    """
+    capitalized_pokemon = str(pb_pokemon_data).capitalize()
+    print("What would you like to do next?\n")
+    print(f"1. Learn more about {capitalized_pokemon}\n")
+    print("2. Throw a pokeball.\n")
+    print("3. Run\n")
     try:
-        learn_more_select = input("(Y / N ?)")        
-        if learn_more_select.lower() == "n":
+        learn_more_select = input("1, 2 or 3")
+        if learn_more_select.lower() == "1":
+            print(f"{capitalized_pokemon} ran while you were checking your pokedex!")
+            print("...")
+            time.sleep(0.5)
+            get_more_pokemon_data(pb_pokemon_data)            
+        elif learn_more_select.lower() == "2":
             catch_pokemon(pb_pokemon_data)
-        elif learn_more_select.lower() == "y":
-            get_more_pokemon_data(pb_pokemon_data)
+        elif learn_more_select == "3":
+            open_menu()
+
         else:
             raise ValueError
     except ValueError:
@@ -294,6 +320,6 @@ def main():
     run_landing_page()
     gen_resource = pb.generation(GENERATION)
     open_menu()
-    make_menu_choice()
+    
 
 main()
