@@ -50,3 +50,15 @@ def find_pokemon():
     if 
         pokemon_name = pb.pokemon(int(select_pokemon)).name.title()
         print(f"Pokemon number {select_pokemon} is {pokemon_name}")
+
+
+
+
+>>> for x in eevee_moves:
+...     move_url = x["move"]["url"]
+...     move_info = requests.get(move_url).json()
+...     if move_info["generation"]["name"] == "generation-i":
+...             version_details = x["version_group_details"]
+...             for y in version_details:
+...                     print('{}: {}'.format(y["level_learned_at"],x["move"]["name"]))
+... 

@@ -212,13 +212,30 @@ def get_more_pokemon_data(pb_pokemon_data):
         get_more_pokemon_data(pb_pokemon_data)
 
 
-def get_location_data(pokemon):
+def get_location_data(pb_pokemon_data):
     """
     Retrieves location data for selected pokemon
     """
-    response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{pokemon.id}/encounters")
+    response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{pb_pokemon_data.id}/encounters")
     location_info = response.json()
+    capitalized_pokemon = str(pb_pokemon_data).capitalize()
     #Print location data here and call
+    gen_1_versions = ["red", "blue", "yellow" ]
+    chars_to_replace = {"-":" ", "area": "", "b1f":"underground", "b2f": "2nd level underground", 
+    "b3f": "3rd level undergound", "b4f": "4th level undergound", "1f":"1st level",
+     "2f": "2nd level", "3f": "3rd level", "4f": "4th level"}
+    print(f"Known locations of {capitalized_pokemon} listed below:\n")
+    for x in location_info:        
+        location_name = x["location_area"]["name"]
+        version_details = x["version_details"]        
+        for y in version_details:            
+            if y["version"]["name"] in gen_1_versions:             
+                for key, value in chars_to_replace.items():
+                    location_name = location_name.replace(key, value)
+                print(location_name.capitalize())
+                break
+    get_more_pokemon_data(pb_pokemon_data)
+
 
 
 
@@ -239,8 +256,8 @@ def get_evolution_chain(pokemon):
     elif evolves_to[0]["evolves_to"] ==[]:
         print(f"{evolution_tree['species']['name'].capitalize()} evolves into {evolves_to[0]['species']['name'].capitalize()}")
     elif len(evolves_to) == 1:
-        print(f"{evolution_tree['species']['name']} evolves into {evolves_to[0]['species']['name']}")
-        print(f"{evolves_to[0]['species']['name']} evolves into {evolves_to[0]['evolves_to'][0]['species']['name']} ")
+        print(f"{evolution_tree['species']['name'].capitalize()} evolves into {evolves_to[0]['species']['name'].capitalize()}")
+        print(f"{evolves_to[0]['species']['name'].capitalize()} evolves into {evolves_to[0]['evolves_to'][0]['species']['name'].capitalize()}")
     time.sleep(1)
 
 def show_and_return_pokemon_habitats():
@@ -252,7 +269,7 @@ def show_and_return_pokemon_habitats():
     print("Where would you like to search for pokemon?")
     print("\n")
     for x in available_habitats:
-        print('{}:{}'.format(available_habitats.index(x)+ 1, x['name']))
+        print('{}:{}'.format(available_habitats.index(x)+ 1, x['name'].capitalize()))
     print("\n")
     return available_habitats
 
@@ -263,18 +280,30 @@ def encounter_wild_pokemon():
     Randomly generates pokemon from the habitat the user selects
     """
     available_habitats = show_and_return_pokemon_habitats()
-
-    habitat_id_selected = int(input(""))
-
+    gen_1_habitat_pokemon = []
     #Assuming here that habitat_select is a integer
-    selected_habitat = available_habitats[habitat_id_selected - 1]
+
+    try:
+        habitat_id_selected = int(input(""))
+        selected_habitat = available_habitats[habitat_id_selected - 1]
+    except ValueError:
+        print("Not a valid input")
+        time.sleep(0.5)
+        clear_console()
+        encounter_wild_pokemon()
+    print("Searching for pokemon...")
     url_for_habitat_species = selected_habitat['url']
     response = requests.get(url_for_habitat_species)
     response_json = response.json()
     pokemon_for_selected_habitat = response_json["pokemon_species"]
-    random_habitat_pokemon = random.choice(pokemon_for_selected_habitat)
-    pb_pokemon_data = pb.pokemon(random_habitat_pokemon['name'])
-    print(f"A wild {random_habitat_pokemon['name'].capitalize()} appeared!")
+    for x in pokemon_for_selected_habitat:
+        response_2 = requests.get(x["url"])
+        pokemon_within_habitat = response_2.json()
+        if pokemon_within_habitat["id"] < 151:
+            gen_1_habitat_pokemon.append(pokemon_within_habitat["name"])
+    random_habitat_pokemon = random.choice(gen_1_habitat_pokemon)
+    pb_pokemon_data = pb.pokemon(random_habitat_pokemon)
+    print(f"A wild {random_habitat_pokemon.capitalize()} appeared!")
     print("Checking pokadex...")
     time.sleep(1)
     display_flavour_text(pb_pokemon_data)
@@ -299,17 +328,14 @@ def make_wild_pokemon_choice(pb_pokemon_data):
         elif learn_more_select.lower() == "2":
             catch_pokemon(pb_pokemon_data)
         elif learn_more_select == "3":
+            print(f"Ran from {capitalized_pokemon}")
+            time.sleep(0.5)
             open_menu()
 
         else:
             raise ValueError
     except ValueError:
         print("Not a valid input")
-
-
-    
-
-
 
 
 def main():
