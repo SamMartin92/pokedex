@@ -19,6 +19,8 @@ GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('pokedex_sheet')
 
 gen_resource = None
+trainer_name = None
+
 
 
 def clear_console():
@@ -28,7 +30,30 @@ def clear_console():
     os.system('clear')
 
 
+def enter_trainer_name():
+    """
+    Takes users trainer name to link to any data from previous uses of the app.
+    Adds it to linked google sheet if it has not been addded previously.
+    """
+    pokedex_sheet = SHEET.worksheet('trainer_data')
+    trainers_list = pokedex_sheet.row_values(1)
+    print("Hello trainer. Please enter your name:\n")
+    global trainer_name
+    trainer_name = input("")
+    if trainer_name.lower() in trainers_list:
+        print(f"Welcome back {trainer_name}")
+    else:
+        print(f"Welcome {trainer_name}")
+        for n in range(1,200):
+            if pokedex_sheet.cell(1,n).value == None:
+                pokedex_sheet.update_cell(1, n, trainer_name)
+                break               
+    time.sleep(1.5)
+
+
+
 def run_landing_page():
+    clear_console()
     print(" _____     ____    _  __  ______   _____    ______  __   __")
     print("|  __ \   / __ \  | |/ / |  ____| |  __ \  |  ____| \ \ / /")
     print("| |__) | | |  | | | ' /  | |__    | |  | | | |__     \ V / ")
@@ -293,8 +318,6 @@ def encounter_wild_pokemon():
     """
     available_habitats = show_and_return_pokemon_habitats()
     gen_1_habitat_pokemon = []
-    #Assuming here that habitat_select is a integer
-
     try:
         habitat_id_selected = int(input(""))
         selected_habitat = available_habitats[habitat_id_selected - 1]
@@ -321,6 +344,7 @@ def encounter_wild_pokemon():
     display_flavour_text(pb_pokemon_data)
     make_wild_pokemon_choice(pb_pokemon_data)
 
+
 def make_wild_pokemon_choice(pb_pokemon_data):
     """
     User makes the choice to learn more about pokemon, catch pokemon or return to menu
@@ -331,15 +355,15 @@ def make_wild_pokemon_choice(pb_pokemon_data):
     print("2. Throw a pokeball.\n")
     print("3. Run\n")
     try:
-        learn_more_select = input("1, 2 or 3")
-        if learn_more_select.lower() == "1":
+        wild_pokemon_choice = input("1, 2 or 3?")
+        if wild_pokemon_choice == "1":
             print(f"{capitalized_pokemon} ran while you were checking your pokedex!")
             print("...")
             time.sleep(0.5)
             get_more_pokemon_data(pb_pokemon_data)            
-        elif learn_more_select.lower() == "2":
-            catch_pokemon(pb_pokemon_data)
-        elif learn_more_select == "3":
+        elif wild_pokemon_choice == "2":
+            throw_pokeball(pb_pokemon_data)
+        elif wild_pokemon_choice == "3":
             print(f"Ran from {capitalized_pokemon}")
             time.sleep(0.5)
             open_menu()
@@ -350,14 +374,28 @@ def make_wild_pokemon_choice(pb_pokemon_data):
         print("Not a valid input")
 
 
+def throw_pokeball(pb_pokemon_data, trainer_name):
+    """
+    Attempts to 'catch' the encountered pokemon and store
+    their name in list of caught pokemon for user
+    """
+    capitalized_pokemon = str(pb_pokemon_data).capitalize()
+    print(f"{trainer_name} threw a pokeball!")
+    print(".\n..\n...")
+    print(f"{capitalized_pokemon} was caught!")
+    print(f"Congratulations {trainer_name}. You caught a {capitalized_pokemon}.")
+    print(f"{capitalized_pokemon} will be stored with the rest of your pokemon.")
+
+
+
 def main():
     """
     Main function initiates app.
     """
     global gen_resource
+    enter_trainer_name()
     run_landing_page()
     gen_resource = pb.generation(GENERATION)
     open_menu()
     
-
 main()
