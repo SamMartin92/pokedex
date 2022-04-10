@@ -22,7 +22,6 @@ gen_resource = None
 trainer_name = None
 
 
-
 def clear_console():
     """
     Clears all data from terminal when called
@@ -34,11 +33,10 @@ def enter_trainer_name():
     """
     Takes users trainer name to link to any data from previous uses of the app.
     Adds it to linked google sheet if it has not been addded previously.
-    """
+    """ 
     pokedex_sheet = SHEET.worksheet('trainer_data')
     trainers_list = pokedex_sheet.row_values(1)
     print("Hello trainer. Please enter your name:\n")
-    global trainer_name
     trainer_name = input("")
     if trainer_name.lower() in trainers_list:
         print(f"Welcome back {trainer_name}")
@@ -47,9 +45,9 @@ def enter_trainer_name():
         for n in range(1,200):
             if pokedex_sheet.cell(1,n).value == None:
                 pokedex_sheet.update_cell(1, n, trainer_name)
-                break               
+                break
     time.sleep(1.5)
-
+    return trainer_name     
 
 
 def run_landing_page():
@@ -105,6 +103,7 @@ def run_landing_page():
     print("Initiating Pokadex...")
     time.sleep(1)
     clear_console()
+
 
 def open_menu():
     """
@@ -171,6 +170,7 @@ def find_pokemon():
     except ValueError:
             print("Not a valid entry.")
             find_pokemon()
+
 
 def display_pokemon(pb_pokemon_data):
     """
@@ -274,8 +274,6 @@ def get_location_data(pb_pokemon_data):
     get_more_pokemon_data(pb_pokemon_data)
 
 
-
-
 def get_evolution_chain(pokemon):
     """
     Retrieves evoluton data for selected pokemon
@@ -297,6 +295,7 @@ def get_evolution_chain(pokemon):
         print(f"{evolves_to[0]['species']['name'].capitalize()} evolves into {evolves_to[0]['evolves_to'][0]['species']['name'].capitalize()}")
     time.sleep(1)
 
+
 def show_and_return_pokemon_habitats():
     """
     Prints the searchable habitats for the user to select.
@@ -309,7 +308,6 @@ def show_and_return_pokemon_habitats():
         print('{}:{}'.format(available_habitats.index(x)+ 1, x['name'].capitalize()))
     print("\n")
     return available_habitats
-
 
 
 def encounter_wild_pokemon():
@@ -374,17 +372,64 @@ def make_wild_pokemon_choice(pb_pokemon_data):
         print("Not a valid input")
 
 
-def throw_pokeball(pb_pokemon_data, trainer_name):
+def throw_pokeball(pb_pokemon_data):
     """
     Attempts to 'catch' the encountered pokemon and store
     their name in list of caught pokemon for user
     """
+    
     capitalized_pokemon = str(pb_pokemon_data).capitalize()
     print(f"{trainer_name} threw a pokeball!")
     print(".\n..\n...")
     print(f"{capitalized_pokemon} was caught!")
     print(f"Congratulations {trainer_name}. You caught a {capitalized_pokemon}.")
     print(f"{capitalized_pokemon} will be stored with the rest of your pokemon.")
+    store_caught_pokemon(pb_pokemon_data)
+
+
+def store_caught_pokemon(pb_pokemon_data):
+    """
+    Stores 'caught' pokemon in column under trainer_name
+    in pokadex_sheet
+    """
+    capitalized_pokemon = str(pb_pokemon_data).capitalize()
+    pokedex_sheet = SHEET.worksheet('trainer_data')
+    trainers_list = pokedex_sheet.row_values(1)
+    i = trainers_list.index(trainer_name)
+    for j in range(2,200):
+        if pokedex_sheet.cell(j, i+1).value == None:
+            pokedex_sheet.update_cell(j, i+1, capitalized_pokemon)
+            break
+    open_menu()
+    #print("Would you like to?")
+    #print("- (1) Return to the main menu")
+    #print("- (2) Catch another pokemon")
+    #print("- (3) View your caught pokemon")
+    #menu_choice_from_catch_pokemon()
+
+"""
+def menu_choice_from_catch_pokemon():
+    try:
+        menu_selection = input("")
+        if menu_selection == "1":
+            print("Returning to main menu...")
+            time.sleep(0.5)
+            open_menu()
+        elif menu_selection == "2":
+            clear_console()
+            encounter_wild_pokemon()        
+        elif menu_selection == "3":
+            view_caught_pokemon()
+        else:
+            raise ValueError
+    except:
+        print("That is not a valid input. Please enter 1, 2 or 3.")
+        menu_choice_from_catch_pokemon()
+     """   
+
+
+
+
 
 
 
@@ -393,7 +438,8 @@ def main():
     Main function initiates app.
     """
     global gen_resource
-    enter_trainer_name()
+    global trainer_name
+    trainer_name = enter_trainer_name()
     run_landing_page()
     gen_resource = pb.generation(GENERATION)
     open_menu()
