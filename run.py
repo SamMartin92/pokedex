@@ -34,8 +34,9 @@ def enter_trainer_name():
     Takes users trainer name to link to any data from previous uses of the app.
     Adds it to linked google sheet if it has not been addded previously.
     """ 
-    pokedex_sheet = SHEET.worksheet('trainer_data')
-    trainers_list = pokedex_sheet.row_values(1)
+    trainer_sheet = SHEET.worksheet('trainer_data')
+    trainers_list = trainer_sheet.row_values(1)
+    sprites_sheet = SHEET.worksheet("sprites_data")
     print("Hello trainer. Please enter your name:\n")
     trainer_name = input("")
     if trainer_name.lower() in trainers_list:
@@ -43,11 +44,13 @@ def enter_trainer_name():
     else:
         print(f"Welcome {trainer_name}")
         for n in range(1,200):
-            if pokedex_sheet.cell(1,n).value == None:
-                pokedex_sheet.update_cell(1, n, trainer_name.lower())
-                break
+            if trainer_sheet.cell(1,n).value == None:
+                trainer_sheet.update_cell(1, n, trainer_name.lower())
+                sprites_sheet.update_cell(1, n, trainer_name.lower())
+                break        
     time.sleep(1.5)
-    return trainer_name     
+    return trainer_name
+    
 
 
 def run_landing_page():
@@ -103,6 +106,7 @@ def run_landing_page():
     print("Initiating Pokadex...")
     time.sleep(1)
     clear_console()
+    open_menu()
 
 
 def open_menu():
@@ -419,16 +423,23 @@ def throw_pokeball(pb_pokemon_data):
 def store_caught_pokemon(pb_pokemon_data):
     """
     Stores 'caught' pokemon in column under trainer_name
-    in pokadex_sheet
+    in trainer_data sheet. Also stores associated sprite
+    url in sprites_data sheet
     """
     capitalized_pokemon = str(pb_pokemon_data).capitalize()
-    pokedex_sheet = SHEET.worksheet('trainer_data')
-    trainers_list = pokedex_sheet.row_values(1)
+    response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{pb_pokemon_data.id}/")
+    sprite_url = response.json()["sprites"]["other"]["official-artwork"]["front_default"]
+    trainer_sheet = SHEET.worksheet('trainer_data')
+    sprites_sheet = SHEET.worksheet("sprites_data")
+    trainers_list = trainer_sheet.row_values(1)
     i = trainers_list.index(trainer_name)
     for j in range(2,200):
-        if pokedex_sheet.cell(j, i+1).value == None:
-            pokedex_sheet.update_cell(j, i+1, capitalized_pokemon)
+        if trainer_sheet.cell(j, i+1).value == None:
+            trainer_sheet.update_cell(j, i+1, capitalized_pokemon)
+            sprites_sheet.update_cell(j, i+1, sprite_url)
             break
+    
+
     #print("Would you like to?")
     #print("- (1) Return to the main menu")
     #print("- (2) Catch another pokemon")
@@ -455,15 +466,31 @@ def menu_choice_from_catch_pokemon():
         menu_choice_from_catch_pokemon()
      """  
 
+def return_trainer_col():
+    """
+    Returns dedicated column of user in trainer_data worksheet
+    """
+    trainer_sheet = SHEET.worksheet('trainer_data')
+    trainers_list = trainer_sheet.row_values(1)
+    trainer_col = trainers_list.index(trainer_name.lower())
+    return trainer_col
+
+
+def return_caught_pokemon():
+    """
+    Returns list of pokemon 'caught' by the user
+    """
+    trainer_sheet = SHEET.worksheet('trainer_data')
+    i = return_trainer_col()
+    caught_pokemon = trainer_sheet.col_values(i+1)
+    return caught_pokemon
+
 
 def view_caught_pokemon():
     """
     Prints out the pokemon the user has 'caught' previously
     """
-    pokedex_sheet = SHEET.worksheet('trainer_data')
-    trainers_list = pokedex_sheet.row_values(1)
-    i = trainers_list.index(trainer_name.lower())
-    caught_pokemon = pokedex_sheet.col_values(i+1)
+    caught_pokemon = return_caught_pokemon()
     if len(caught_pokemon) == 1:
         print("You have not caught any pokemon yet.\n")
         print("Returning to menu. Select (3) to catch a pokemon")
@@ -473,10 +500,27 @@ def view_caught_pokemon():
         for x in range(len(caught_pokemon)):
             if x == 0:
                 continue
-            print(caught_pokemon[x])
+            print(f"{x}: {caught_pokemon[x]}")
     print("\n")
-
+    give_sprite_url()
     
+
+def give_sprite_url():
+    """
+    Prints out a url for user to paste into browser to
+    view an image of selected 'caught' pokemon
+    """
+    trainer_sheet = SHEET.worksheet('trainer_data')
+    sprites_sheet = SHEET.worksheet("sprites_data")
+    i = return_trainer_col()
+    caught_pokemon = trainer_sheet.col_values(i+1)
+    view_pokemon_choice = input("Enter number of pokemon here")
+    for x in range(len(caught_pokemon)):
+        if int(view_pokemon_choice) == x:
+            print(sprites_sheet.cell(x+1,i+1).value)
+            
+
+
 
 
 
@@ -489,6 +533,6 @@ def main():
     trainer_name = enter_trainer_name()
     run_landing_page()
     gen_resource = pb.generation(GENERATION)
-    open_menu()
+    
     
 main()
