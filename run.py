@@ -114,7 +114,8 @@ def open_menu():
     print("- (1) About Pokedex")
     print("- (2) Search Pokemon")
     print("- (3) Catch a pokemon")
-    print("Please input '1', '2' or '3' below to select from the menu")
+    print("- (4) View your pokemon")
+    print("Please input '1', '2', '3' or '4' below to select from the menu")
     make_menu_choice()
 
 
@@ -126,7 +127,6 @@ def make_menu_choice():
     try:
         menu_selection = int(input(""))
         if menu_selection == 1:
-            print("choice 1")
             # open_description()
             time.sleep(2)
             clear_console()
@@ -140,6 +140,9 @@ def make_menu_choice():
             time.sleep(2)
             clear_console()
             encounter_wild_pokemon()
+        
+        elif menu_selection == 4:
+            view_caught_pokemon()
 
         else:
             raise ValueError
@@ -214,29 +217,30 @@ def get_more_pokemon_data(pb_pokemon_data):
     print("Input 2 for height")
     print("Input 3 for weight")
     print("Input 4 for locations")
+    print("Input 5 for moves info")
     print("Input 6 for evolution chain")
     print("Input 7 to return to main menu")
 
     try:
         data_select = input("")
         if data_select == "1":
-            clear_console()
             print(f"{name.capitalize()} has the following type(s):")
             for type_slot in pb_pokemon_data.types:                
                 print('{}: {}'.format(type_slot.slot, type_slot.type.name.title()))
             get_more_pokemon_data(pb_pokemon_data)
         elif data_select == "2":
-            clear_console()
             print(f"{name.capitalize()} is {pb_pokemon_data.height} decimetres in height.")
             get_more_pokemon_data(pb_pokemon_data)
         elif data_select =="3":
-            clear_console()
             print(f"{name.capitalize()} is {pb_pokemon_data.weight} hectograms in weight.")
             get_more_pokemon_data(pb_pokemon_data)
-        elif data_select == "5":
+        elif data_select == "4":
             get_location_data(pb_pokemon_data)
+            get_more_pokemon_data(pb_pokemon_data)
+        elif data_select == "5":
+            get_moves_info(pb_pokemon_data)
+            get_more_pokemon_data(pb_pokemon_data)
         elif data_select == "6":
-            clear_console()
             get_evolution_chain(pb_pokemon_data)
             get_more_pokemon_data(pb_pokemon_data)
         elif data_select =="7":
@@ -272,6 +276,26 @@ def get_location_data(pb_pokemon_data):
                 print(location_name.capitalize())
                 break
     get_more_pokemon_data(pb_pokemon_data)
+
+
+def get_moves_info(pb_pokemon_data):
+    """
+    Retrieves the first generation moves the selected pokemon can learn and
+    prints them to the console for the user
+    """
+    capitalized_pokemon = str(pb_pokemon_data).capitalize()
+    response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{pb_pokemon_data.id}/")
+    selected_pokemon_moves = response.json()["moves"]
+    print(f"{capitalized_pokemon} can learn the following moves:")
+    for x in selected_pokemon_moves:
+        move_url = x["move"]["url"]
+        move_info = requests.get(move_url).json()
+        if move_info["generation"]["name"] == "generation-i":
+            version_details = x["version_group_details"]
+            for y in version_details:
+                print(x["move"]["name"].capitalize())
+                break
+    
 
 
 def get_evolution_chain(pokemon):
@@ -425,11 +449,24 @@ def menu_choice_from_catch_pokemon():
     except:
         print("That is not a valid input. Please enter 1, 2 or 3.")
         menu_choice_from_catch_pokemon()
-     """   
+     """  
 
 
+def view_caught_pokemon():
+    """
+    Prints out the pokemon the user has 'caught' previously
+    """
+    pokedex_sheet = SHEET.worksheet('trainer_data')
+    trainers_list = pokedex_sheet.row_values(1)
+    i = trainers_list.index(trainer_name)
+    caught_pokemon = pokedex_sheet.col_values(i+1)
+    print("Please see your pokemon below:")
+    for x in range(len(caught_pokemon)):
+        if x == 0:
+            continue
+        print(f"{caught_pokemon.index(x)} : {caught_pokemon[x]}")
 
-
+    
 
 
 
