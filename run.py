@@ -44,7 +44,7 @@ def enter_trainer_name():
         print(f"Welcome {trainer_name}")
         for n in range(1,200):
             if pokedex_sheet.cell(1,n).value == None:
-                pokedex_sheet.update_cell(1, n, trainer_name)
+                pokedex_sheet.update_cell(1, n, trainer_name.lower())
                 break
     time.sleep(1.5)
     return trainer_name     
@@ -147,7 +147,7 @@ def make_menu_choice():
         else:
             raise ValueError
     except ValueError:
-        print("Not a valid input. Please type '1', '2' or '3' to make your selection")
+        print("Not a valid input. Please type '1', '2', '3' or '4' to make your selection")
         make_menu_choice()
 
 
@@ -224,15 +224,16 @@ def get_more_pokemon_data(pb_pokemon_data):
     try:
         data_select = input("")
         if data_select == "1":
-            print(f"{name.capitalize()} has the following type(s):")
+            print(f"\n{name.capitalize()} has the following type(s):")
             for type_slot in pb_pokemon_data.types:                
                 print('{}: {}'.format(type_slot.slot, type_slot.type.name.title()))
+                print("\n")
             get_more_pokemon_data(pb_pokemon_data)
         elif data_select == "2":
-            print(f"{name.capitalize()} is {pb_pokemon_data.height} decimetres in height.")
+            print(f"\n{name.capitalize()} is {pb_pokemon_data.height} decimetres in height.\n")
             get_more_pokemon_data(pb_pokemon_data)
         elif data_select =="3":
-            print(f"{name.capitalize()} is {pb_pokemon_data.weight} hectograms in weight.")
+            print(f"\n{name.capitalize()} is {pb_pokemon_data.weight} hectograms in weight.\n")
             get_more_pokemon_data(pb_pokemon_data)
         elif data_select == "4":
             get_location_data(pb_pokemon_data)
@@ -275,6 +276,7 @@ def get_location_data(pb_pokemon_data):
                     location_name = location_name.replace(key, value)
                 print(location_name.capitalize())
                 break
+    print("\n")
     get_more_pokemon_data(pb_pokemon_data)
 
 
@@ -295,7 +297,6 @@ def get_moves_info(pb_pokemon_data):
             for y in version_details:
                 print(x["move"]["name"].capitalize())
                 break
-    
 
 
 def get_evolution_chain(pokemon):
@@ -311,13 +312,13 @@ def get_evolution_chain(pokemon):
     evolves_to = evolution_tree["evolves_to"]
 
     if evolves_to == []:
-        print(f"{capitalized_pokemon} has no evolutionary chain.\n")
+        print(f"\n{capitalized_pokemon} has no evolutionary chain.\n")
     elif evolves_to[0]["evolves_to"] ==[]:
-        print(f"{evolution_tree['species']['name'].capitalize()} evolves into {evolves_to[0]['species']['name'].capitalize()}")
+        print(f"\n{evolution_tree['species']['name'].capitalize()} evolves into {evolves_to[0]['species']['name'].capitalize()}\n")
     elif len(evolves_to) == 1:
-        print(f"{evolution_tree['species']['name'].capitalize()} evolves into {evolves_to[0]['species']['name'].capitalize()}")
-        print(f"{evolves_to[0]['species']['name'].capitalize()} evolves into {evolves_to[0]['evolves_to'][0]['species']['name'].capitalize()}")
-    time.sleep(1)
+        print(f"\n{evolution_tree['species']['name'].capitalize()} evolves into {evolves_to[0]['species']['name'].capitalize()}")
+        print(f"\n{evolves_to[0]['species']['name'].capitalize()} evolves into {evolves_to[0]['evolves_to'][0]['species']['name'].capitalize()}\n")
+
 
 
 def show_and_return_pokemon_habitats():
@@ -326,9 +327,12 @@ def show_and_return_pokemon_habitats():
     """
     habitats = requests.get("https://pokeapi.co/api/v2/pokemon-habitat/")
     available_habitats = habitats.json()['results']
-    print("Where would you like to search for pokemon?")
+    print("In which habitat would you like to search for pokemon?")
     print("\n")
     for x in available_habitats:
+        if available_habitats.index(x) == 4:
+            print(('{}:{}'.format(available_habitats.index(x)+ 1, "Legendary Locations")))
+            continue
         print('{}:{}'.format(available_habitats.index(x)+ 1, x['name'].capitalize()))
     print("\n")
     return available_habitats
@@ -385,11 +389,11 @@ def make_wild_pokemon_choice(pb_pokemon_data):
             get_more_pokemon_data(pb_pokemon_data)            
         elif wild_pokemon_choice == "2":
             throw_pokeball(pb_pokemon_data)
+            open_menu()
         elif wild_pokemon_choice == "3":
             print(f"Ran from {capitalized_pokemon}")
             time.sleep(0.5)
             open_menu()
-
         else:
             raise ValueError
     except ValueError:
@@ -409,6 +413,7 @@ def throw_pokeball(pb_pokemon_data):
     print(f"Congratulations {trainer_name}. You caught a {capitalized_pokemon}.")
     print(f"{capitalized_pokemon} will be stored with the rest of your pokemon.")
     store_caught_pokemon(pb_pokemon_data)
+    
 
 
 def store_caught_pokemon(pb_pokemon_data):
@@ -424,7 +429,6 @@ def store_caught_pokemon(pb_pokemon_data):
         if pokedex_sheet.cell(j, i+1).value == None:
             pokedex_sheet.update_cell(j, i+1, capitalized_pokemon)
             break
-    open_menu()
     #print("Would you like to?")
     #print("- (1) Return to the main menu")
     #print("- (2) Catch another pokemon")
@@ -458,13 +462,19 @@ def view_caught_pokemon():
     """
     pokedex_sheet = SHEET.worksheet('trainer_data')
     trainers_list = pokedex_sheet.row_values(1)
-    i = trainers_list.index(trainer_name)
+    i = trainers_list.index(trainer_name.lower())
     caught_pokemon = pokedex_sheet.col_values(i+1)
-    print("Please see your pokemon below:")
-    for x in range(len(caught_pokemon)):
-        if x == 0:
-            continue
-        print(f"{caught_pokemon.index(x)} : {caught_pokemon[x]}")
+    if len(caught_pokemon) == 1:
+        print("You have not caught any pokemon yet.\n")
+        print("Returning to menu. Select (3) to catch a pokemon")
+        open_menu()
+    else:
+        print("Please see your pokemon below:")
+        for x in range(len(caught_pokemon)):
+            if x == 0:
+                continue
+            print(caught_pokemon[x])
+    print("\n")
 
     
 
