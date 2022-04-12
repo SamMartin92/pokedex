@@ -1,12 +1,17 @@
-import requests
+"""
+Imported libraries
+"""
+
 import time
-import pokebase as pb
 import os
 import random
+import pokebase as pb
+import requests
 import gspread
+import colorama
 from google.oauth2.service_account import Credentials
 
-#Constant variables
+# Constant variables
 GENERATION = 1
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -33,7 +38,7 @@ def enter_trainer_name():
     """
     Takes users trainer name to link to any data from previous uses of the app.
     Adds it to linked google sheet if it has not been addded previously.
-    """ 
+    """
     trainer_sheet = SHEET.worksheet('trainer_data')
     trainers_list = trainer_sheet.row_values(1)
     sprites_sheet = SHEET.worksheet("sprites_data")
@@ -43,14 +48,13 @@ def enter_trainer_name():
         print(f"Welcome back {trainer_name}")
     else:
         print(f"Welcome {trainer_name}")
-        for n in range(1,200):
-            if trainer_sheet.cell(1,n).value == None:
+        for n in range(1, 200):
+            if trainer_sheet.cell(1, n).value is None:
                 trainer_sheet.update_cell(1, n, trainer_name.lower())
                 sprites_sheet.update_cell(1, n, trainer_name.lower())
-                break        
+                break
     time.sleep(1.5)
     return trainer_name
-    
 
 
 def run_landing_page():
@@ -61,7 +65,6 @@ def run_landing_page():
     print("|  ___/  | |  | | |  <   |  __|   | |  | | |  __|     > <  ")
     print("| |      | |__| | | . \  | |____  | |__| | | |____   / . \ ")
     print("|_|       \____/  |_|\_\ |______| |_____/  |______| /_/ \_\ ")
-
 
     print('''
     MMMMMMMMMMMMMMMMMMMMMMMWN0xoc;'....     ....';cok0NWMMMMMMMMMMMMMMMMMMMMMMM
@@ -144,7 +147,7 @@ def make_menu_choice():
             time.sleep(2)
             clear_console()
             encounter_wild_pokemon()
-        
+
         elif menu_selection == 4:
             view_caught_pokemon()
 
@@ -164,19 +167,19 @@ def find_pokemon():
         selected_pokemon_id_or_name = input("Please enter the name or id (1-150) of the pokemon you wish to search for\n")
         gen_1_pokemon = [pokemon.name.title() for pokemon in gen_resource.pokemon_species]
 
-        #Name search
+        # Name search
         if selected_pokemon_id_or_name.capitalize() in gen_1_pokemon:
             pb_pokemon_data = pb.pokemon(selected_pokemon_id_or_name.lower())
             display_pokemon(pb_pokemon_data)
-        #Id search
-        elif int(selected_pokemon_id_or_name) in range(1,151):
+        # Id search
+        elif int(selected_pokemon_id_or_name) in range(1, 151):
             pb_pokemon_data = pb.pokemon(int(selected_pokemon_id_or_name))
             display_pokemon(pb_pokemon_data)
         else:
             raise ValueError
     except ValueError:
-            print("Not a valid entry.")
-            find_pokemon()
+        print("Not a valid entry.")
+        find_pokemon()
 
 
 def display_pokemon(pb_pokemon_data):
@@ -229,14 +232,14 @@ def get_more_pokemon_data(pb_pokemon_data):
         data_select = input("")
         if data_select == "1":
             print(f"\n{name.capitalize()} has the following type(s):")
-            for type_slot in pb_pokemon_data.types:                
+            for type_slot in pb_pokemon_data.types:
                 print('{}: {}'.format(type_slot.slot, type_slot.type.name.title()))
-                print("\n")
+            print("\n")
             get_more_pokemon_data(pb_pokemon_data)
         elif data_select == "2":
             print(f"\n{name.capitalize()} is {pb_pokemon_data.height} decimetres in height.\n")
             get_more_pokemon_data(pb_pokemon_data)
-        elif data_select =="3":
+        elif data_select == "3":
             print(f"\n{name.capitalize()} is {pb_pokemon_data.weight} hectograms in weight.\n")
             get_more_pokemon_data(pb_pokemon_data)
         elif data_select == "4":
@@ -248,7 +251,7 @@ def get_more_pokemon_data(pb_pokemon_data):
         elif data_select == "6":
             get_evolution_chain(pb_pokemon_data)
             get_more_pokemon_data(pb_pokemon_data)
-        elif data_select =="7":
+        elif data_select == "7":
             clear_console()
             open_menu()
         else:
@@ -265,17 +268,23 @@ def get_location_data(pb_pokemon_data):
     response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{pb_pokemon_data.id}/encounters")
     location_info = response.json()
     capitalized_pokemon = str(pb_pokemon_data).capitalize()
-    #Print location data here and call
-    gen_1_versions = ["red", "blue", "yellow" ]
-    chars_to_replace = {"-":" ", "area": "", "b1f":"underground", "b2f": "2nd level underground", 
-    "b3f": "3rd level undergound", "b4f": "4th level undergound", "1f":"1st level",
-     "2f": "2nd level", "3f": "3rd level", "4f": "4th level"}
+    # Print location data here and call
+    gen_1_versions = ["red", "blue", "yellow"]
+    chars_to_replace = {"-": " ", "area": "",
+                        "b1f": "underground",
+                        "b2f": "2nd level underground",
+                        "b3f": "3rd level undergound",
+                        "b4f": "4th level undergound",
+                        "1f": "1st level",
+                        "2f": "2nd level",
+                        "3f": "3rd level",
+                        "4f": "4th level"}
     print(f"Known locations of {capitalized_pokemon} listed below:\n")
-    for x in location_info:        
+    for x in location_info:
         location_name = x["location_area"]["name"]
-        version_details = x["version_details"]        
-        for y in version_details:            
-            if y["version"]["name"] in gen_1_versions:             
+        version_details = x["version_details"]
+        for y in version_details:
+            if y["version"]["name"] in gen_1_versions:
                 for key, value in chars_to_replace.items():
                     location_name = location_name.replace(key, value)
                 print(location_name.capitalize())
@@ -317,12 +326,11 @@ def get_evolution_chain(pokemon):
 
     if evolves_to == []:
         print(f"\n{capitalized_pokemon} has no evolutionary chain.\n")
-    elif evolves_to[0]["evolves_to"] ==[]:
+    elif evolves_to[0]["evolves_to"] == []:
         print(f"\n{evolution_tree['species']['name'].capitalize()} evolves into {evolves_to[0]['species']['name'].capitalize()}\n")
     elif len(evolves_to) == 1:
         print(f"\n{evolution_tree['species']['name'].capitalize()} evolves into {evolves_to[0]['species']['name'].capitalize()}")
         print(f"\n{evolves_to[0]['species']['name'].capitalize()} evolves into {evolves_to[0]['evolves_to'][0]['species']['name'].capitalize()}\n")
-
 
 
 def show_and_return_pokemon_habitats():
@@ -335,9 +343,11 @@ def show_and_return_pokemon_habitats():
     print("\n")
     for x in available_habitats:
         if available_habitats.index(x) == 4:
-            print(('{}:{}'.format(available_habitats.index(x)+ 1, "Legendary Locations")))
+            print(('{}:{}'.format(available_habitats.index(x) + 1,
+                  "Legendary Locations")))
             continue
-        print('{}:{}'.format(available_habitats.index(x)+ 1, x['name'].capitalize()))
+        print('{}:{}'.format(available_habitats.index(x) + 1,
+                             x['name'].capitalize()))
     print("\n")
     return available_habitats
 
@@ -377,7 +387,8 @@ def encounter_wild_pokemon():
 
 def make_wild_pokemon_choice(pb_pokemon_data):
     """
-    User makes the choice to learn more about pokemon, catch pokemon or return to menu
+    User makes the choice to learn more about pokemon,
+    catch pokemon or return to menu
     """
     capitalized_pokemon = str(pb_pokemon_data).capitalize()
     print("What would you like to do next?\n")
@@ -385,12 +396,12 @@ def make_wild_pokemon_choice(pb_pokemon_data):
     print("2. Throw a pokeball.\n")
     print("3. Run\n")
     try:
-        wild_pokemon_choice = input("1, 2 or 3?")
+        wild_pokemon_choice = input("1, 2 or 3?\n")
         if wild_pokemon_choice == "1":
             print(f"{capitalized_pokemon} ran while you were checking your pokedex!")
             print("...")
             time.sleep(0.5)
-            get_more_pokemon_data(pb_pokemon_data)            
+            get_more_pokemon_data(pb_pokemon_data)
         elif wild_pokemon_choice == "2":
             throw_pokeball(pb_pokemon_data)
             open_menu()
@@ -407,9 +418,9 @@ def make_wild_pokemon_choice(pb_pokemon_data):
 def throw_pokeball(pb_pokemon_data):
     """
     Attempts to 'catch' the encountered pokemon and store
-    their name in list of caught pokemon for user
+    their name in list of users 'caught' pokemon.
     """
-    
+
     capitalized_pokemon = str(pb_pokemon_data).capitalize()
     print(f"{trainer_name} threw a pokeball!")
     print(".\n..\n...")
@@ -417,7 +428,6 @@ def throw_pokeball(pb_pokemon_data):
     print(f"Congratulations {trainer_name}. You caught a {capitalized_pokemon}.")
     print(f"{capitalized_pokemon} will be stored with the rest of your pokemon.")
     store_caught_pokemon(pb_pokemon_data)
-    
 
 
 def store_caught_pokemon(pb_pokemon_data):
@@ -433,12 +443,12 @@ def store_caught_pokemon(pb_pokemon_data):
     sprites_sheet = SHEET.worksheet("sprites_data")
     trainers_list = trainer_sheet.row_values(1)
     i = trainers_list.index(trainer_name)
-    for j in range(2,200):
-        if trainer_sheet.cell(j, i+1).value == None:
+    for j in range(2, 200):
+        if trainer_sheet.cell(j, i+1).value is None:
             trainer_sheet.update_cell(j, i+1, capitalized_pokemon)
             sprites_sheet.update_cell(j, i+1, sprite_url)
             break
-    
+
 
 def return_trainer_col():
     """
@@ -479,7 +489,7 @@ def view_caught_pokemon():
     print("If you would like to view any of your pokemon, please enter the number next to their name.")
     print("Otherwise, enter '0' to return to the main menu")
     return_or_get_sprite_url()
-    
+
 
 def return_or_get_sprite_url():
     """
@@ -491,12 +501,12 @@ def return_or_get_sprite_url():
     i = return_trainer_col()
     caught_pokemon = trainer_sheet.col_values(i+1)
     view_pokemon_choice = input("")
-    try:        
+    try:
         if int(view_pokemon_choice) == 0:
             open_menu()
-        elif int(view_pokemon_choice) in range(1,len(caught_pokemon)):
-            print("Paste the below url into your browswer to see you pokemon:\n")
-            print(sprites_sheet.cell(int(view_pokemon_choice)+1,i+1).value)
+        elif int(view_pokemon_choice) in range(1, len(caught_pokemon)):
+            print("Paste the below url into your browswer to see your pokemon:\n")
+            print(sprites_sheet.cell(int(view_pokemon_choice)+1, i+1).value)
             print("\n")
             print("If you would like to another one of your pokemon, please enter the number next to their name.")
             print("Otherwise, enter '0' to return to the main menu")
@@ -511,9 +521,6 @@ def return_or_get_sprite_url():
         return_or_get_sprite_url()
 
 
-
-
-
 def main():
     """
     Main function initiates app.
@@ -523,7 +530,6 @@ def main():
     gen_resource = pb.generation(GENERATION)
     trainer_name = enter_trainer_name()
     run_landing_page()
-    
-    
-    
+
+
 main()
