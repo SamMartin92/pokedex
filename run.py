@@ -8,7 +8,7 @@ import random
 import pokebase as pb
 import requests
 import gspread
-import colorama
+# import colorama
 from google.oauth2.service_account import Credentials
 
 # Constant variables
