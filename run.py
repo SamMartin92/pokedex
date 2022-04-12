@@ -440,32 +440,6 @@ def store_caught_pokemon(pb_pokemon_data):
             break
     
 
-    #print("Would you like to?")
-    #print("- (1) Return to the main menu")
-    #print("- (2) Catch another pokemon")
-    #print("- (3) View your caught pokemon")
-    #menu_choice_from_catch_pokemon()
-
-"""
-def menu_choice_from_catch_pokemon():
-    try:
-        menu_selection = input("")
-        if menu_selection == "1":
-            print("Returning to main menu...")
-            time.sleep(0.5)
-            open_menu()
-        elif menu_selection == "2":
-            clear_console()
-            encounter_wild_pokemon()        
-        elif menu_selection == "3":
-            view_caught_pokemon()
-        else:
-            raise ValueError
-    except:
-        print("That is not a valid input. Please enter 1, 2 or 3.")
-        menu_choice_from_catch_pokemon()
-     """  
-
 def return_trainer_col():
     """
     Returns dedicated column of user in trainer_data worksheet
@@ -502,10 +476,12 @@ def view_caught_pokemon():
                 continue
             print(f"{x}: {caught_pokemon[x]}")
     print("\n")
-    give_sprite_url()
+    print("If you would like to view any of your pokemon, please enter the number next to their name.")
+    print("Otherwise, enter '0' to return to the main menu")
+    return_or_get_sprite_url()
     
 
-def give_sprite_url():
+def return_or_get_sprite_url():
     """
     Prints out a url for user to paste into browser to
     view an image of selected 'caught' pokemon
@@ -514,11 +490,25 @@ def give_sprite_url():
     sprites_sheet = SHEET.worksheet("sprites_data")
     i = return_trainer_col()
     caught_pokemon = trainer_sheet.col_values(i+1)
-    view_pokemon_choice = input("Enter number of pokemon here")
-    for x in range(len(caught_pokemon)):
-        if int(view_pokemon_choice) == x:
-            print(sprites_sheet.cell(x+1,i+1).value)
-            
+    view_pokemon_choice = input("")
+    try:        
+        if int(view_pokemon_choice) == 0:
+            open_menu()
+        elif int(view_pokemon_choice) in range(1,len(caught_pokemon)):
+            print("Paste the below url into your browswer to see you pokemon:\n")
+            print(sprites_sheet.cell(int(view_pokemon_choice)+1,i+1).value)
+            print("\n")
+            print("If you would like to another one of your pokemon, please enter the number next to their name.")
+            print("Otherwise, enter '0' to return to the main menu")
+            print("\n")
+            return_or_get_sprite_url()
+        else:
+            raise ValueError
+    except ValueError:
+        print("Invalid input")
+        print("If you would like to view any of your pokemon, please enter the number next to their name.")
+        print("Otherwise, enter '0' to return to the main menu")
+        return_or_get_sprite_url()
 
 
 
@@ -530,9 +520,10 @@ def main():
     """
     global gen_resource
     global trainer_name
+    gen_resource = pb.generation(GENERATION)
     trainer_name = enter_trainer_name()
     run_landing_page()
-    gen_resource = pb.generation(GENERATION)
+    
     
     
 main()
