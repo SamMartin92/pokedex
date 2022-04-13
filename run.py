@@ -23,7 +23,7 @@ SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('pokedex_sheet')
 
-gen_resource = None
+pokemon_generation_data = None
 trainer_name = None
 
 
@@ -43,18 +43,22 @@ def enter_trainer_name():
     trainers_list = trainer_sheet.row_values(1)
     sprites_sheet = SHEET.worksheet("sprites_data")
     print("Hello trainer. Please enter your name:\n")
-    trainer_name = input("")
-    if trainer_name.lower() in trainers_list:
-        print(f"Welcome back {trainer_name}")
-    else:
-        print(f"Welcome {trainer_name}")
-        for n in range(1, 200):
-            if trainer_sheet.cell(1, n).value is None:
-                trainer_sheet.update_cell(1, n, trainer_name.lower())
-                sprites_sheet.update_cell(1, n, trainer_name.lower())
-                break
-    time.sleep(1.5)
-    return trainer_name
+    try:
+        trainer_name = input("")
+        if len(trainer_name) == 0:
+            raise ValueError("Name cannot be empty")
+        if trainer_name.lower() in trainers_list:
+            print(f"Welcome back {trainer_name}")
+        else:
+            print(f"Welcome {trainer_name}")
+            index_to_update = len(trainers_list) + 1
+            trainer_sheet.update_cell(1, index_to_update, trainer_name.lower())
+            sprites_sheet.update_cell(1, index_to_update, trainer_name.lower())
+        time.sleep(1.5)
+        return trainer_name
+    except ValueError as e:
+        print(e)
+        return enter_trainer_name()
 
 
 def run_landing_page():
@@ -132,23 +136,23 @@ def make_menu_choice():
     """
 
     try:
-        menu_selection = int(input(""))
-        if menu_selection == 1:
+        selected_menu_choice = int(input(""))
+        if selected_menu_choice == 1:
             # open_description()
             time.sleep(2)
             clear_console()
 
-        elif menu_selection == 2:
-            time.sleep(2)
+        elif selected_menu_choice == 2:
+            time.sleep(1)
             clear_console()
             find_pokemon()
 
-        elif menu_selection == 3:
-            time.sleep(2)
+        elif selected_menu_choice == 3:
+            time.sleep(1)
             clear_console()
             encounter_wild_pokemon()
 
-        elif menu_selection == 4:
+        elif selected_menu_choice == 4:
             view_caught_pokemon()
 
         else:
@@ -164,8 +168,8 @@ def find_pokemon():
     seek out information about it
     """
     try:
-        selected_pokemon_id_or_name = input("Please enter the name or id (1-150) of the pokemon you wish to search for\n")
-        gen_1_pokemon = [pokemon.name.title() for pokemon in gen_resource.pokemon_species]
+        selected_pokemon_id_or_name = input("Please enter the name or id (1-150) of the pokemon you wish to search for:\n")
+        gen_1_pokemon = [pokemon.name.title() for pokemon in pokemon_generation_data.pokemon_species]
 
         # Name search
         if selected_pokemon_id_or_name.capitalize() in gen_1_pokemon:
@@ -233,29 +237,30 @@ def get_more_pokemon_data(pb_pokemon_data):
         if data_select == "1":
             print(f"\n{name.capitalize()} has the following type(s):")
             for type_slot in pb_pokemon_data.types:
-                print('{}: {}'.format(type_slot.slot, type_slot.type.name.title()))
+                print('{}: {}'.format(type_slot.slot,
+                      type_slot.type.name.title()))
             print("\n")
-            get_more_pokemon_data(pb_pokemon_data)
         elif data_select == "2":
-            print(f"\n{name.capitalize()} is {pb_pokemon_data.height} decimetres in height.\n")
-            get_more_pokemon_data(pb_pokemon_data)
+            print(f"\n{name.capitalize()} is {pb_pokemon_data.height}",
+                  "decimetres in height.\n")
         elif data_select == "3":
-            print(f"\n{name.capitalize()} is {pb_pokemon_data.weight} hectograms in weight.\n")
-            get_more_pokemon_data(pb_pokemon_data)
+            print(f"\n{name.capitalize()} is {pb_pokemon_data.weight}",
+                  "hectograms in weight.\n")
         elif data_select == "4":
             get_location_data(pb_pokemon_data)
-            get_more_pokemon_data(pb_pokemon_data)
         elif data_select == "5":
             get_moves_info(pb_pokemon_data)
-            get_more_pokemon_data(pb_pokemon_data)
         elif data_select == "6":
             get_evolution_chain(pb_pokemon_data)
-            get_more_pokemon_data(pb_pokemon_data)
         elif data_select == "7":
             clear_console()
             open_menu()
         else:
             raise ValueError
+
+        if data_select != '7':
+            get_more_pokemon_data(pb_pokemon_data)
+
     except ValueError:
         print("That is not a valid input")
         get_more_pokemon_data(pb_pokemon_data)
@@ -279,16 +284,19 @@ def get_location_data(pb_pokemon_data):
                         "2f": "2nd level",
                         "3f": "3rd level",
                         "4f": "4th level"}
-    print(f"Known locations of {capitalized_pokemon} listed below:\n")
-    for x in location_info:
-        location_name = x["location_area"]["name"]
-        version_details = x["version_details"]
-        for y in version_details:
-            if y["version"]["name"] in gen_1_versions:
-                for key, value in chars_to_replace.items():
-                    location_name = location_name.replace(key, value)
-                print(location_name.capitalize())
-                break
+    if len(location_info) == 0:
+        print("No locations found")
+    else:
+        print(f"Known locations of {capitalized_pokemon} listed below:\n")
+        for x in location_info:
+            location_name = x["location_area"]["name"]
+            version_details = x["version_details"]
+            for y in version_details:
+                if y["version"]["name"] in gen_1_versions:
+                    for key, value in chars_to_replace.items():
+                        location_name = location_name.replace(key, value)
+                    print(location_name.capitalize())
+                    break
     print("\n")
     get_more_pokemon_data(pb_pokemon_data)
 
@@ -327,10 +335,13 @@ def get_evolution_chain(pokemon):
     if evolves_to == []:
         print(f"\n{capitalized_pokemon} has no evolutionary chain.\n")
     elif evolves_to[0]["evolves_to"] == []:
-        print(f"\n{evolution_tree['species']['name'].capitalize()} evolves into {evolves_to[0]['species']['name'].capitalize()}\n")
+        print(f"\n{evolution_tree['species']['name'].capitalize()} evolves",
+              f"into {evolves_to[0]['species']['name'].capitalize()}\n")
     elif len(evolves_to) == 1:
-        print(f"\n{evolution_tree['species']['name'].capitalize()} evolves into {evolves_to[0]['species']['name'].capitalize()}")
-        print(f"\n{evolves_to[0]['species']['name'].capitalize()} evolves into {evolves_to[0]['evolves_to'][0]['species']['name'].capitalize()}\n")
+        print(f"\n{evolution_tree['species']['name'].capitalize()} evolves "
+              f"into {evolves_to[0]['species']['name'].capitalize()}\n")
+        print(f"\n{evolves_to[0]['species']['name'].capitalize()} evolves into "
+              f"{evolves_to[0]['evolves_to'][0]['species']['name'].capitalize()}\n")
 
 
 def show_and_return_pokemon_habitats():
@@ -374,6 +385,7 @@ def encounter_wild_pokemon():
     for x in pokemon_for_selected_habitat:
         response_2 = requests.get(x["url"])
         pokemon_within_habitat = response_2.json()
+        # Limit the pokemons only to 150 pokemons
         if pokemon_within_habitat["id"] < 151:
             gen_1_habitat_pokemon.append(pokemon_within_habitat["name"])
     random_habitat_pokemon = random.choice(gen_1_habitat_pokemon)
@@ -398,7 +410,8 @@ def make_wild_pokemon_choice(pb_pokemon_data):
     try:
         wild_pokemon_choice = input("1, 2 or 3?\n")
         if wild_pokemon_choice == "1":
-            print(f"{capitalized_pokemon} ran while you were checking your pokedex!")
+            print(f"{capitalized_pokemon} ran while you were",
+                  " checking your pokedex!")
             print("...")
             time.sleep(0.5)
             get_more_pokemon_data(pb_pokemon_data)
@@ -425,8 +438,10 @@ def throw_pokeball(pb_pokemon_data):
     print(f"{trainer_name} threw a pokeball!")
     print(".\n..\n...")
     print(f"{capitalized_pokemon} was caught!")
-    print(f"Congratulations {trainer_name}. You caught a {capitalized_pokemon}.")
-    print(f"{capitalized_pokemon} will be stored with the rest of your pokemon.")
+    print(f"Congratulations {trainer_name}.",
+          f"You caught a {capitalized_pokemon}.")
+    print(f"{capitalized_pokemon} will be stored with the rest",
+          "of your pokemon.")
     store_caught_pokemon(pb_pokemon_data)
 
 
@@ -441,16 +456,15 @@ def store_caught_pokemon(pb_pokemon_data):
     sprite_url = response.json()["sprites"]["other"]["official-artwork"]["front_default"]
     trainer_sheet = SHEET.worksheet('trainer_data')
     sprites_sheet = SHEET.worksheet("sprites_data")
-    trainers_list = trainer_sheet.row_values(1)
-    i = trainers_list.index(trainer_name)
-    for j in range(2, 200):
-        if trainer_sheet.cell(j, i+1).value is None:
-            trainer_sheet.update_cell(j, i+1, capitalized_pokemon)
-            sprites_sheet.update_cell(j, i+1, sprite_url)
-            break
+
+    col_idx = return_trainer_col_index()
+    caught_pokemon_list_by_trainer = return_caught_pokemon_by_trainer()
+    row_idx = len(caught_pokemon_list_by_trainer) + 1
+    trainer_sheet.update_cell(row_idx, col_idx + 1, capitalized_pokemon)
+    sprites_sheet.update_cell(row_idx, col_idx + 1, sprite_url)
 
 
-def return_trainer_col():
+def return_trainer_col_index():
     """
     Returns dedicated column of user in trainer_data worksheet
     """
@@ -460,12 +474,12 @@ def return_trainer_col():
     return trainer_col
 
 
-def return_caught_pokemon():
+def return_caught_pokemon_by_trainer():
     """
     Returns list of pokemon 'caught' by the user
     """
     trainer_sheet = SHEET.worksheet('trainer_data')
-    i = return_trainer_col()
+    i = return_trainer_col_index()
     caught_pokemon = trainer_sheet.col_values(i+1)
     return caught_pokemon
 
@@ -474,7 +488,7 @@ def view_caught_pokemon():
     """
     Prints out the pokemon the user has 'caught' previously
     """
-    caught_pokemon = return_caught_pokemon()
+    caught_pokemon = return_caught_pokemon_by_trainer()
     if len(caught_pokemon) == 1:
         print("You have not caught any pokemon yet.\n")
         print("Returning to menu. Select (3) to catch a pokemon")
@@ -482,11 +496,11 @@ def view_caught_pokemon():
     else:
         print("Please see your pokemon below:")
         for x in range(len(caught_pokemon)):
-            if x == 0:
-                continue
-            print(f"{x}: {caught_pokemon[x]}")
+            if x > 0:
+                print(f"{x}: {caught_pokemon[x]}")
     print("\n")
-    print("If you would like to view any of your pokemon, please enter the number next to their name.")
+    print("If you would like to view any of your pokemon,",
+          "please enter the number next to their name.")
     print("Otherwise, enter '0' to return to the main menu")
     return_or_get_sprite_url()
 
@@ -498,17 +512,23 @@ def return_or_get_sprite_url():
     """
     trainer_sheet = SHEET.worksheet('trainer_data')
     sprites_sheet = SHEET.worksheet("sprites_data")
-    i = return_trainer_col()
+    i = return_trainer_col_index()
     caught_pokemon = trainer_sheet.col_values(i+1)
     view_pokemon_choice = input("")
     try:
         if int(view_pokemon_choice) == 0:
+            time.sleep(1)
+            clear_console()
             open_menu()
         elif int(view_pokemon_choice) in range(1, len(caught_pokemon)):
-            print("Paste the below url into your browswer to see your pokemon:\n")
+            print("Paste the below url into your browswer to",
+                  "see your pokemon:")
+            print("Be careful not to use ctrl + C to copy",
+                  "or you will exit the program.\n")
             print(sprites_sheet.cell(int(view_pokemon_choice)+1, i+1).value)
             print("\n")
-            print("If you would like to another one of your pokemon, please enter the number next to their name.")
+            print("If you would like to another one of your pokemon,",
+                  "please enter the number next to their name.")
             print("Otherwise, enter '0' to return to the main menu")
             print("\n")
             return_or_get_sprite_url()
@@ -516,7 +536,8 @@ def return_or_get_sprite_url():
             raise ValueError
     except ValueError:
         print("Invalid input")
-        print("If you would like to view any of your pokemon, please enter the number next to their name.")
+        print("If you would like to view any of your pokemon,",
+              "please enter the number next to their name.")
         print("Otherwise, enter '0' to return to the main menu")
         return_or_get_sprite_url()
 
@@ -525,9 +546,9 @@ def main():
     """
     Main function initiates app.
     """
-    global gen_resource
+    global pokemon_generation_data
     global trainer_name
-    gen_resource = pb.generation(GENERATION)
+    pokemon_generation_data = pb.generation(GENERATION)
     trainer_name = enter_trainer_name()
     run_landing_page()
 
