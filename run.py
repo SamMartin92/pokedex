@@ -33,6 +33,13 @@ def clear_console():
     """
     os.system('clear')
 
+def delay_clear():
+    """
+    Shows user screen for .75 seconds before clearing console
+    """
+    time.sleep(.75)
+    clear_console()
+
 
 def enter_trainer_name():
     """
@@ -54,7 +61,7 @@ def enter_trainer_name():
             index_to_update = len(trainers_list) + 1
             trainer_sheet.update_cell(1, index_to_update, trainer_name.lower())
             sprites_sheet.update_cell(1, index_to_update, trainer_name.lower())
-        time.sleep(1.5)
+        time.sleep(1)
         return trainer_name
     except ValueError as e:
         print(e)
@@ -139,22 +146,19 @@ def make_menu_choice():
         selected_menu_choice = int(input(""))
         if selected_menu_choice == 1:
             # open_description()
-            time.sleep(2)
-            clear_console()
+            delay_clear()          
 
         elif selected_menu_choice == 2:
-            time.sleep(1)
-            clear_console()
+            delay_clear()
             find_pokemon()
 
         elif selected_menu_choice == 3:
-            time.sleep(1)
-            clear_console()
+            delay_clear()
             encounter_wild_pokemon()
 
         elif selected_menu_choice == 4:
+            delay_clear()
             view_caught_pokemon()
-
         else:
             raise ValueError
     except ValueError:
@@ -203,11 +207,8 @@ def display_flavour_text(pb_pokemon_data):
     name = pokemon_api_response["name"]
     description = pokemon_api_response["flavor_text_entries"]
     print(f"Pokemon number {pb_pokemon_data.id}: {name.capitalize()}")
-    print("\n")
-    print(f"Some information about {name.capitalize()}:")
-    print("\n")
-    print(f"{description[1]['flavor_text'].replace('', ' ')}")
-    print("\n")
+    print(f"Some information about {name.capitalize()}:\n")
+    print(f"{description[1]['flavor_text'].replace('', ' ')}\n")
     if description[1]['flavor_text'] == description[2]['flavor_text']:
         print(f"{description[5]['flavor_text'].replace('', '')}")
     else:
@@ -222,8 +223,8 @@ def get_more_pokemon_data(pb_pokemon_data):
     response = requests.get(f"https://pokeapi.co/api/v2/pokemon-species/{pb_pokemon_data.id}/")
     pokemon_api_response = response.json()
     name = pokemon_api_response["name"]
-    print(f"What else do you want to know about {name.capitalize()}?")
-    print("\n\n")
+    print(f"What do you want to know about {name.capitalize()}?")
+    print("\n")
     print("Input 1 for type")
     print("Input 2 for height")
     print("Input 3 for weight")
@@ -235,22 +236,28 @@ def get_more_pokemon_data(pb_pokemon_data):
     try:
         data_select = input("")
         if data_select == "1":
+            delay_clear()
             print(f"\n{name.capitalize()} has the following type(s):")
             for type_slot in pb_pokemon_data.types:
                 print('{}: {}'.format(type_slot.slot,
                       type_slot.type.name.title()))
             print("\n")
         elif data_select == "2":
+            delay_clear()
             print(f"\n{name.capitalize()} is {pb_pokemon_data.height}",
                   "decimetres in height.\n")
         elif data_select == "3":
+            delay_clear()
             print(f"\n{name.capitalize()} is {pb_pokemon_data.weight}",
                   "hectograms in weight.\n")
         elif data_select == "4":
+            delay_clear()
             get_location_data(pb_pokemon_data)
         elif data_select == "5":
+            delay_clear()
             get_moves_info(pb_pokemon_data)
         elif data_select == "6":
+            delay_clear()
             get_evolution_chain(pb_pokemon_data)
         elif data_select == "7":
             clear_console()
@@ -262,6 +269,7 @@ def get_more_pokemon_data(pb_pokemon_data):
             get_more_pokemon_data(pb_pokemon_data)
 
     except ValueError:
+        delay_clear()
         print("That is not a valid input")
         get_more_pokemon_data(pb_pokemon_data)
 
@@ -340,7 +348,7 @@ def get_evolution_chain(pokemon):
     elif len(evolves_to) == 1:
         print(f"\n{evolution_tree['species']['name'].capitalize()} evolves "
               f"into {evolves_to[0]['species']['name'].capitalize()}\n")
-        print(f"\n{evolves_to[0]['species']['name'].capitalize()} evolves into "
+        print(f"{evolves_to[0]['species']['name'].capitalize()} evolves into "
               f"{evolves_to[0]['evolves_to'][0]['species']['name'].capitalize()}\n")
 
 
@@ -377,7 +385,8 @@ def encounter_wild_pokemon():
         time.sleep(0.5)
         clear_console()
         encounter_wild_pokemon()
-    print("Searching for pokemon...")
+    delay_clear()
+    print("Searching for pokemon...")    
     url_for_habitat_species = selected_habitat['url']
     response = requests.get(url_for_habitat_species)
     response_json = response.json()
@@ -390,9 +399,11 @@ def encounter_wild_pokemon():
             gen_1_habitat_pokemon.append(pokemon_within_habitat["name"])
     random_habitat_pokemon = random.choice(gen_1_habitat_pokemon)
     pb_pokemon_data = pb.pokemon(random_habitat_pokemon)
+    clear_console()
     print(f"A wild {random_habitat_pokemon.capitalize()} appeared!")
     print("Checking pokadex...")
-    time.sleep(1)
+    time.sleep(2.5)
+    clear_console()
     display_flavour_text(pb_pokemon_data)
     make_wild_pokemon_choice(pb_pokemon_data)
 
@@ -404,22 +415,25 @@ def make_wild_pokemon_choice(pb_pokemon_data):
     """
     capitalized_pokemon = str(pb_pokemon_data).capitalize()
     print("What would you like to do next?\n")
-    print(f"1. Learn more about {capitalized_pokemon}\n")
-    print("2. Throw a pokeball.\n")
-    print("3. Run\n")
+    print(f"-(1)- Learn more about {capitalized_pokemon}")
+    print("-(2)- Throw a pokeball.")
+    print("-(3)- Run")
     try:
-        wild_pokemon_choice = input("1, 2 or 3?\n")
+        wild_pokemon_choice = input("")
         if wild_pokemon_choice == "1":
-            print(f"{capitalized_pokemon} ran while you were",
-                  " checking your pokedex!")
+            delay_clear()
+            print(f"{capitalized_pokemon} fled while you were",
+                  "checking your pokedex!")
             print("...")
-            time.sleep(0.5)
+            time.sleep(0.75)
             get_more_pokemon_data(pb_pokemon_data)
         elif wild_pokemon_choice == "2":
+            delay_clear()
             throw_pokeball(pb_pokemon_data)
             open_menu()
         elif wild_pokemon_choice == "3":
-            print(f"Ran from {capitalized_pokemon}")
+            delay_clear()
+            print(f"Got away from {capitalized_pokemon}")
             time.sleep(0.5)
             open_menu()
         else:
@@ -435,7 +449,7 @@ def throw_pokeball(pb_pokemon_data):
     """
 
     capitalized_pokemon = str(pb_pokemon_data).capitalize()
-    print(f"{trainer_name} threw a pokeball!")
+    print(f"{trainer_name} threw a pokeball at {capitalized_pokemon}!")
     print(".\n..\n...")
     print(f"{capitalized_pokemon} was caught!")
     print(f"Congratulations {trainer_name}.",
@@ -498,10 +512,6 @@ def view_caught_pokemon():
         for x in range(len(caught_pokemon)):
             if x > 0:
                 print(f"{x}: {caught_pokemon[x]}")
-    print("\n")
-    print("If you would like to view any of your pokemon,",
-          "please enter the number next to their name.")
-    print("Otherwise, enter '0' to return to the main menu")
     return_or_get_sprite_url()
 
 
@@ -514,31 +524,30 @@ def return_or_get_sprite_url():
     sprites_sheet = SHEET.worksheet("sprites_data")
     i = return_trainer_col_index()
     caught_pokemon = trainer_sheet.col_values(i+1)
+    print("\nIf you would like to view any of your pokemon,",
+          "please enter the number next to their name.")
+    print("Otherwise, enter '0' to return to the main menu")
     view_pokemon_choice = input("")
     try:
         if int(view_pokemon_choice) == 0:
-            time.sleep(1)
-            clear_console()
+            delay_clear()
             open_menu()
         elif int(view_pokemon_choice) in range(1, len(caught_pokemon)):
+            delay_clear()
             print("Paste the below url into your browswer to",
                   "see your pokemon:")
             print("Be careful not to use ctrl + C to copy",
                   "or you will exit the program.\n")
             print(sprites_sheet.cell(int(view_pokemon_choice)+1, i+1).value)
             print("\n")
-            print("If you would like to another one of your pokemon,",
-                  "please enter the number next to their name.")
-            print("Otherwise, enter '0' to return to the main menu")
-            print("\n")
+            view_caught_pokemon()
             return_or_get_sprite_url()
         else:
             raise ValueError
     except ValueError:
-        print("Invalid input")
-        print("If you would like to view any of your pokemon,",
-              "please enter the number next to their name.")
-        print("Otherwise, enter '0' to return to the main menu")
+        print("\nInvalid input")
+        view_caught_pokemon()
+        print("\n")
         return_or_get_sprite_url()
 
 
