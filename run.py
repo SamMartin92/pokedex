@@ -3,8 +3,8 @@ Imported libraries
 """
 
 import time
-import os
 import random
+from os import system, name
 import pokebase as pb
 import requests
 import gspread
@@ -17,7 +17,7 @@ SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive.file",
     "https://www.googleapis.com/auth/drive"
-    ]
+]
 CREDS = Credentials.from_service_account_file('creds.json')
 SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
@@ -26,12 +26,19 @@ SHEET = GSPREAD_CLIENT.open('pokedex_sheet')
 pokemon_generation_data = None
 trainer_name = None
 
-
+# https://www.geeksforgeeks.org/clear-screen-python/
 def clear_console():
     """
     Clears all data from terminal when called
     """
-    os.system('clear')
+    # for windows
+    if name == 'nt':
+        _ = system('cls')
+  
+    # for mac and linux(here, os.name is 'posix')
+    else:
+        _ = system('clear')
+
 
 def delay_clear():
     """
@@ -71,11 +78,11 @@ def enter_trainer_name():
 def run_landing_page():
     clear_console()
     print(" _____     ____    _  __  ______   _____    ______  __   __")
-    print("|  __ \   / __ \  | |/ / |  ____| |  __ \  |  ____| \ \ / /")
-    print("| |__) | | |  | | | ' /  | |__    | |  | | | |__     \ V / ")
+    print("|  __ \\   / __ \\  | |/ / |  ____| |  __ \\  |  ____| \\ \\ / /")
+    print("| |__) | | |  | | | ' /  | |__    | |  | | | |__     \\ V / ")
     print("|  ___/  | |  | | |  <   |  __|   | |  | | |  __|     > <  ")
-    print("| |      | |__| | | . \  | |____  | |__| | | |____   / . \ ")
-    print("|_|       \____/  |_|\_\ |______| |_____/  |______| /_/ \_\ ")
+    print("| |      | |__| | | . \\  | |____  | |__| | | |____   / . \\ ")
+    print("|_|       \\____/  |_|\\_\\ |______| |_____/  |______| /_/ \\_\\ ")
 
     print('''
     MMMMMMMMMMMMMMMMMMMMMMMWN0xoc;'....     ....';cok0NWMMMMMMMMMMMMMMMMMMMMMMM
@@ -146,7 +153,7 @@ def make_menu_choice():
         selected_menu_choice = int(input(""))
         if selected_menu_choice == 1:
             # open_description()
-            delay_clear()          
+            delay_clear()
 
         elif selected_menu_choice == 2:
             delay_clear()
@@ -162,7 +169,8 @@ def make_menu_choice():
         else:
             raise ValueError
     except ValueError:
-        print("Not a valid input. Please type '1', '2', '3' or '4' to make your selection")
+        print("Not a valid input. Please type '1', '2', '3' or '4' to make",
+              "your selection")
         make_menu_choice()
 
 
@@ -171,17 +179,23 @@ def find_pokemon():
     Allows user to key in name or id of pokemon and
     seek out information about it
     """
+    print("Please enter the name or id (1-150) of the pokemon you wish to",
+          "search for:")
     try:
-        selected_pokemon_id_or_name = input("Please enter the name or id (1-150) of the pokemon you wish to search for:\n")
-        gen_1_pokemon = [pokemon.name.title() for pokemon in pokemon_generation_data.pokemon_species]
+        selected_pokemon_id_or_name = input("")
+        gen_1_pokemon = [pokemon.name.title()
+                         for pokemon in
+                         pokemon_generation_data.pokemon_species]
 
         # Name search
         if selected_pokemon_id_or_name.capitalize() in gen_1_pokemon:
             pb_pokemon_data = pb.pokemon(selected_pokemon_id_or_name.lower())
+            delay_clear()
             display_pokemon(pb_pokemon_data)
         # Id search
         elif int(selected_pokemon_id_or_name) in range(1, 151):
             pb_pokemon_data = pb.pokemon(int(selected_pokemon_id_or_name))
+            delay_clear()
             display_pokemon(pb_pokemon_data)
         else:
             raise ValueError
@@ -202,7 +216,8 @@ def display_flavour_text(pb_pokemon_data):
     """
     Prints out two short descriptions about selected pokemon
     """
-    response = requests.get(f"https://pokeapi.co/api/v2/pokemon-species/{pb_pokemon_data.id}/")
+    response = requests.get(
+        f"https://pokeapi.co/api/v2/pokemon-species/{pb_pokemon_data.id}/")
     pokemon_api_response = response.json()
     name = pokemon_api_response["name"]
     description = pokemon_api_response["flavor_text_entries"]
@@ -220,7 +235,8 @@ def get_more_pokemon_data(pb_pokemon_data):
     """
     Allows user to select the data they wish to see about chosen pokemon
     """
-    response = requests.get(f"https://pokeapi.co/api/v2/pokemon-species/{pb_pokemon_data.id}/")
+    response = requests.get(
+        f"https://pokeapi.co/api/v2/pokemon-species/{pb_pokemon_data.id}/")
     pokemon_api_response = response.json()
     name = pokemon_api_response["name"]
     print(f"What do you want to know about {name.capitalize()}?")
@@ -278,7 +294,8 @@ def get_location_data(pb_pokemon_data):
     """
     Retrieves location data for selected pokemon
     """
-    response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{pb_pokemon_data.id}/encounters")
+    response = requests.get(
+        f"https://pokeapi.co/api/v2/pokemon/{pb_pokemon_data.id}/encounters")
     location_info = response.json()
     capitalized_pokemon = str(pb_pokemon_data).capitalize()
     # Print location data here and call
@@ -291,7 +308,10 @@ def get_location_data(pb_pokemon_data):
                         "1f": "1st level",
                         "2f": "2nd level",
                         "3f": "3rd level",
-                        "4f": "4th level"}
+                        "4f": "4th level",
+                        "5f": "5th level",
+                        "6f": "6th level",
+                        "7f": "7th level"}
     if len(location_info) == 0:
         print("No locations found")
     else:
@@ -315,7 +335,8 @@ def get_moves_info(pb_pokemon_data):
     prints them to the console for the user
     """
     capitalized_pokemon = str(pb_pokemon_data).capitalize()
-    response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{pb_pokemon_data.id}/")
+    response = requests.get(
+        f"https://pokeapi.co/api/v2/pokemon/{pb_pokemon_data.id}/")
     selected_pokemon_moves = response.json()["moves"]
     print(f"{capitalized_pokemon} can learn the following moves:")
     for x in selected_pokemon_moves:
@@ -326,6 +347,7 @@ def get_moves_info(pb_pokemon_data):
             for y in version_details:
                 print(x["move"]["name"].capitalize())
                 break
+    print("\n")
 
 
 def get_evolution_chain(pokemon):
@@ -333,23 +355,25 @@ def get_evolution_chain(pokemon):
     Retrieves evoluton data for selected pokemon
     """
     capitalized_pokemon = str(pokemon).capitalize()
-    response = requests.get(f"https://pokeapi.co/api/v2/pokemon-species/{pokemon.id}/")
+    response = requests.get(
+        f"https://pokeapi.co/api/v2/pokemon-species/{pokemon.id}/")
     pokemon_species = response.json()
     evolution_data = pokemon_species['evolution_chain']['url']
     response_2 = requests.get(evolution_data)
     evolution_tree = response_2.json()["chain"]
-    evolves_to = evolution_tree["evolves_to"]
+    evol_to = evolution_tree["evolves_to"]
 
-    if evolves_to == []:
+    if evol_to == []:
         print(f"\n{capitalized_pokemon} has no evolutionary chain.\n")
-    elif evolves_to[0]["evolves_to"] == []:
+    elif evol_to[0]["evolves_to"] == []:
         print(f"\n{evolution_tree['species']['name'].capitalize()} evolves",
-              f"into {evolves_to[0]['species']['name'].capitalize()}\n")
-    elif len(evolves_to) == 1:
+              f"into {evol_to[0]['species']['name'].capitalize()}\n")
+    elif len(evol_to) == 1:
         print(f"\n{evolution_tree['species']['name'].capitalize()} evolves "
-              f"into {evolves_to[0]['species']['name'].capitalize()}\n")
-        print(f"{evolves_to[0]['species']['name'].capitalize()} evolves into "
-              f"{evolves_to[0]['evolves_to'][0]['species']['name'].capitalize()}\n")
+              f"into {evol_to[0]['species']['name'].capitalize()}\n")
+        print(
+            f"{evol_to[0]['species']['name'].capitalize()} evolves into "
+            f"{evol_to[0]['evolves_to'][0]['species']['name'].capitalize()}\n")
 
 
 def show_and_return_pokemon_habitats():
@@ -386,7 +410,7 @@ def encounter_wild_pokemon():
         clear_console()
         encounter_wild_pokemon()
     delay_clear()
-    print("Searching for pokemon...")    
+    print("Searching for pokemon...")
     url_for_habitat_species = selected_habitat['url']
     response = requests.get(url_for_habitat_species)
     response_json = response.json()
@@ -466,8 +490,10 @@ def store_caught_pokemon(pb_pokemon_data):
     url in sprites_data sheet
     """
     capitalized_pokemon = str(pb_pokemon_data).capitalize()
-    response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{pb_pokemon_data.id}/")
-    sprite_url = response.json()["sprites"]["other"]["official-artwork"]["front_default"]
+    response = requests.get(
+        f"https://pokeapi.co/api/v2/pokemon/{pb_pokemon_data.id}/")
+    sprite_url = response.json(
+    )["sprites"]["other"]["official-artwork"]["front_default"]
     trainer_sheet = SHEET.worksheet('trainer_data')
     sprites_sheet = SHEET.worksheet("sprites_data")
 
@@ -494,7 +520,7 @@ def return_caught_pokemon_by_trainer():
     """
     trainer_sheet = SHEET.worksheet('trainer_data')
     i = return_trainer_col_index()
-    caught_pokemon = trainer_sheet.col_values(i+1)
+    caught_pokemon = trainer_sheet.col_values(i + 1)
     return caught_pokemon
 
 
@@ -523,7 +549,7 @@ def return_or_get_sprite_url():
     trainer_sheet = SHEET.worksheet('trainer_data')
     sprites_sheet = SHEET.worksheet("sprites_data")
     i = return_trainer_col_index()
-    caught_pokemon = trainer_sheet.col_values(i+1)
+    caught_pokemon = trainer_sheet.col_values(i + 1)
     print("\nIf you would like to view any of your pokemon,",
           "please enter the number next to their name.")
     print("Otherwise, enter '0' to return to the main menu")
@@ -538,7 +564,10 @@ def return_or_get_sprite_url():
                   "see your pokemon:")
             print("Be careful not to use ctrl + C to copy",
                   "or you will exit the program.\n")
-            print(sprites_sheet.cell(int(view_pokemon_choice)+1, i+1).value)
+            print(
+                sprites_sheet.cell(
+                    int(view_pokemon_choice) + 1,
+                    i + 1).value)
             print("\n")
             view_caught_pokemon()
             return_or_get_sprite_url()
