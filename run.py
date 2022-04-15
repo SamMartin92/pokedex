@@ -8,7 +8,6 @@ from os import system, name
 import pokebase as pb
 import requests
 import gspread
-# import colorama
 from google.oauth2.service_account import Credentials
 
 # Constant variables
@@ -35,7 +34,7 @@ def clear_console():
     # for windows
     if name == 'nt':
         _ = system('cls')
-  
+
     # for mac and linux(here, os.name is 'posix')
     else:
         _ = system('clear')
@@ -78,42 +77,44 @@ def enter_trainer_name():
 
 def run_landing_page():
     clear_console()
-    print(" _____     ____    _  __  ______   _____    ______  __   __")
-    print("|  __ \\   / __ \\  | |/ / |  ____| |  __ \\  |  ____| \\ \\ / /")
-    print("| |__) | | |  | | | ' /  | |__    | |  | | | |__     \\ V / ")
-    print("|  ___/  | |  | | |  <   |  __|   | |  | | |  __|     > <  ")
-    print("| |      | |__| | | . \\  | |____  | |__| | | |____   / . \\ ")
-    print("|_|       \\____/  |_|\\_\\ |______| |_____/  |______| /_/ \\_\\ ")
+
+    print("""
+         _____     ____    _  __  ______   _____    ______  __   __
+        |  __ \\   / __ \\  | |/ / |  ____| |  __ \\  |  ____| \\ \\ / /
+        | |__) | | |  | | | ' /  | |__    | |  | | | |__     \\ V /
+        |  ___/  | |  | | |  <   |  __|   | |  | | |  __|     > <
+        | |      | |__| | | . \\  | |____  | |__| | | |____   / . \\
+        |_|       \\____/  |_|\\_\\ |______| |_____/  |______| /_/ \\_\\
+        """.center(80))
 
     print('''
-                         ...'',,,,,,,,,'...     
-                     ..',;;;;;;;;;;;;;;;;;;,'..    
-                   .';;;;;;;;;;;;;;;;;;;;;;;;;,'.    
-                 .,;;;;;;;;;;;;;;;;;;;;;;;;;;;;,,'.    
-               .';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;,,,'.   
-              .,;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;,,,,.   
-             .,;;;;;;;;;;;;;;,'......',;;;;;;;;;;;,,,,.   
-            .';;;;;;;;;;;;;'.          .';;;;;;;;;,,,,'.   
-            .;;;;;;;;;;;;,.   ,ldxxdl,   .,;;;;;;;;,,,,.   
-            .''''''''''''.  .dNMMMMMMNd.  .''''''''.....   
-                            :NMMMMMMMMN:                   
-           .;::::::::::::.  ,KMMMMMMMMK,  .;:::::::;;;;'   
-           '0MMMMMMMMMMMWk.  ,xKNWWNKx,  .kWMMMMMMNXXXXd. 
-           .dWMMMMMMMMMMMWO;.  .',,'.  .;OWMMMMMMMNXXX0;   
-            'OMMMMMMMMMMMMMNOo;'....';oONMMMMMMMMWNXXKo.  
-             ,0MMMMMMMMMMMMMMMWNXXXXNWMMMMMMMMMMWNXXXd.   
-              ,OWMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWNXXKo.   
-               .oXMMMMMMMMMMMMMMMMMMMMMMMMMMMMWNXXk;   
-                 'dXWMMMMMMMMMMMMMMMMMMMMMMMMWNXkc.   
-                   .lOXWMMMMMMMMMMMMMMMMMMMWN0o;.   
-                      ':dOKNWMMMMMMMMMMWX0xl,.    
-                          .';cllooooll:;..     
+                         ...'',,,,,,,,,'...
+                     ..',;;;;;;;;;;;;;;;;;;,'..
+                   .';;;;;;;;;;;;;;;;;;;;;;;;;,'.
+                 .,;;;;;;;;;;;;;;;;;;;;;;;;;;;;,,'.
+               .';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;,,,'.
+              .,;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;,,,,.
+             .,;;;;;;;;;;;;;;,'......',;;;;;;;;;;;,,,,.
+            .';;;;;;;;;;;;;'.          .';;;;;;;;;,,,,'.
+            .;;;;;;;;;;;;,.   ,ldxxdl,   .,;;;;;;;;,,,,.
+            .;;;;;;;;;;;;.  .dNMMMMMMNd.  .;;;;;;;;.....
+                            :NMMMMMMMMN:
+           .;::::::::::::.  ,KMMMMMMMMK,  .;:::::::;;;;'
+           '0MMMMMMMMMMMWk.  ,xKNWWNKx,  .kWMMMMMMNXXXXd.
+           .dWMMMMMMMMMMMWO;.  .',,'.  .;OWMMMMMMMNXXX0;
+            'OMMMMMMMMMMMMMNOo;'....';oONMMMMMMMMWNXXKo.
+             ,0MMMMMMMMMMMMMMMWNXXXXNWMMMMMMMMMMWNXXXd.
+              ,OWMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWNXXKo.
+               .oXMMMMMMMMMMMMMMMMMMMMMMMMMMMMWNXXk;
+                 'dXWMMMMMMMMMMMMMMMMMMMMMMMMWNXkc.
+                   .lOXWMMMMMMMMMMMMMMMMMMMWN0o;.
+                      ':dOKNWMMMMMMMMMMWX0xl,.
+                          .';cllooooll:;..
 
 
 
-        ''')
-
-    time.sleep(2)
+        '''.center(80))
+    time.sleep(20)
     clear_console()
     print("Initiating Pokadex...")
     time.sleep(1)
@@ -327,7 +328,7 @@ def get_moves_info(pb_pokemon_data):
         f"https://pokeapi.co/api/v2/pokemon/{pb_pokemon_data.id}/")
     selected_pokemon_moves = response.json()["moves"]
     print(f"Retrieving moves for {capitalized_pokemon}...")
-    moves_learned =[]
+    moves_learned = []
     for x in selected_pokemon_moves:
         move_url = x["move"]["url"]
         move_info = requests.get(move_url).json()
@@ -340,7 +341,7 @@ def get_moves_info(pb_pokemon_data):
     print(f"{capitalized_pokemon} can learn the following moves:\n")
     print(', '.join(moves_learned))
     print("\n")
-        
+
 
 def get_evolution_chain(pb_pokemon_data):
     """
