@@ -114,7 +114,7 @@ def run_landing_page():
 
 
         '''.center(80))
-    time.sleep(20)
+    time.sleep(2)
     clear_console()
     print("Initiating Pokadex...")
     time.sleep(1)
@@ -144,8 +144,8 @@ def make_menu_choice():
     try:
         selected_menu_choice = int(input(""))
         if selected_menu_choice == 1:
-            # open_description()
             delay_clear()
+            open_description()
 
         elif selected_menu_choice == 2:
             delay_clear()
@@ -165,6 +165,44 @@ def make_menu_choice():
               "your selection")
         make_menu_choice()
 
+
+def open_description():
+    """
+    Gives the user a description of the application
+    """
+    clear_console()
+    print("""
+    Welcome to your Pokedex.
+    
+    The Pokedex is a tool based around the first generation of Pokemon. ie
+    the first 150 pokemon.
+    Connecting to 'PokeAPI', your Pokedex will give you all the information
+    you need to find the first generation of pokemon.
+
+    Search for pokemon by name or ID with menu option (2). 
+    Retrieve information such as known locations, evolutionary chains,
+    what moves they can learn and more.
+
+    With your pokedex, you can also encounter and catch wild pokemon with 
+    menu option (3). Choose a habitat to search and come across a random
+    pokemon which can be found there.If you like the pokemon you encounter,
+    throw a pokeball and add them to your collection.
+
+    Once you have caught some pokemon, you can view your collection with menu
+    option (4). Check out what pokemon you've caught so far and generate a 
+    url to check them out in your browser.
+
+    With your pokedex in hand, there is nothing stopping you on your journey 
+    to becoming a pokemon master. Gotta catch 'em all!
+        """)
+    menu_return = input("Press enter to return to the main menu")
+    if menu_return is None:
+        clear_console() 
+        open_menu()
+    else:
+        clear_console()
+        open_menu()
+    
 
 def find_pokemon():
     """
