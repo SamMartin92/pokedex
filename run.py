@@ -26,6 +26,7 @@ SHEET = GSPREAD_CLIENT.open('pokedex_sheet')
 pokemon_generation_data = None
 trainer_name = None
 
+
 # https://www.geeksforgeeks.org/clear-screen-python/
 def clear_console():
     """
@@ -85,38 +86,28 @@ def run_landing_page():
     print("|_|       \\____/  |_|\\_\\ |______| |_____/  |______| /_/ \\_\\ ")
 
     print('''
-    MMMMMMMMMMMMMMMMMMMMMMMWN0xoc;'....     ....';cok0NWMMMMMMMMMMMMMMMMMMMMMMM
-    MMMMMMMMMMMMMMMMMMMMNOo:'.                       ..:oONWMMMMMMMMMMMMMMMMMMM
-    MMMMMMMMMMMMMMMMWNkc'          ..............         'ckXMMMMMMMMMMMMMMMMM
-    MMMMMMMMMMMMMMW0o'       ...',;;;;;;;;;;;;;;;,'...       'o0WMMMMMMMMMMMMMM
-    MMMMMMMMMMMMW0c.      ..,;;;;;;;;;;;;;;;;;;;;;;;;,'..      .c0WMMMMMMMMMMMM
-    MMMMMMMMMMMXl.     ..,;;;;;;;;;;;;;;;;;;;;;;;;;;;;;,,,..     .lKMMMMMMMMMMM
-    MMMMMMMMMWk,     .';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;,,,'.     'kWMMMMMMMMM
-    MMMMMMMMNo.    .';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;,,,,'.    .oNMMMMMMMM
-    MMMMMMMXl     .,;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;,,,,,.     lXMMMMMMM
-    MMMMMMNl     .;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;,,,,,.     lNMMMMMM
-    MMMMMWd.    .;;;;;;;;;;;;;;;;;;;;,''''''',;;;;;;;;;;;;;;;,,,,,.    .dWMMMMM
-    MMMMM0'    .,;;;;;;;;;;;;;;;;;'..         ..';;;;;;;;;;;;;,,,,,.    '0MMMMM
-    MMMMWo    .';;;;;;;;;;;;;;;;'.     .....     .';;;;;;;;;;;,,,,,,.    oWMMMM
-    MMMMK,    .;;;;;;;;;;;;;;;;.    'oOKXNXKOo'    .;;;;;;;;;;,,,,,,.    ,KMMMM
-    MMMMO.    .''''' ''''''''     'cKMMMMMMMMWKc'     '''''''''''''''.   .OMMMM
-    MMMMk.                        '0MMMMMMMMMMM0'                        .kMMMM
-    MMMMk.     ...............    '0MMMMMMMMMMM0'    .... ...            .kMMMM
-    MMMMO.   .x000000000000000d.   cXMMMMMMMMMKc   .d000000000Okkkkkc.   .OMMMM
-    MMMMK,   .kMMMMMMMMMMMMMMMNd.   'oOKXNXKOo'   .dWMMMMMMMMWNXXXXKc    ,KMMMM
-    MMMMWo    cNMMMMMMMMMMMMMMMWO;     .....    .;OWMMMMMMMMMWXXXXXk'    oWMMMM
-    MMMMM0'   .xWMMMMMMMMMMMMMMMMNOl,.       .,lONMMMMMMMMMMWNXXXX0:    '0MMMMM
-    MMMMMWd.   'OWMMMMMMMMMMMMMMMMMMNKOkxxxkOKWMMMMMMMMMMMMMWXXXXKl.   .dWMMMMM
-    MMMMMMNl    'OWMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWNXXXKl.    lNMMMMMM
-    MMMMMMMXl    .dNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWNXXXO:     lXMMMMMMM
-    MMMMMMMMNo.   .:0WMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWNXXKd'    .oNMMMMMMMM
-    MMMMMMMMMWk'    .l0WMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWNNXKx,     'kWMMMMMMMMM
-    MMMMMMMMMMMXo.    .ckNMMMMMMMMMMMMMMMMMMMMMMMMMMMMWNXOo,     .oXMMMMMMMMMMM
-    MMMMMMMMMMMMW0l.     'lkXWMMMMMMMMMMMMMMMMMMMMMMWXOo;.     .c0WMMMMMMMMMMMM
-    MMMMMMMMMMMMMMWKo'      .;lx0XNWMMMMMMMMMMMWNKko:'.      'oKWMMMMMMMMMMMMMM
-    MMMMMMMMMMMMMMMMMNkc'        .';:clllolllc:,..        'ckNMMMMMMMMMMMMMMMMM
-    MMMMMMMMMMMMMMMMMMMWNOo:'.                       .':oONMMMMMMMMMMMMMMMMMMMM
-    MMMMMMMMMMMMMMMMMMMMMMMWN0koc;,....     ....,;cok0NWMMMMMMMMMMMMMMMMMMMMMMM
+                         ...'',,,,,,,,,'...     
+                     ..',;;;;;;;;;;;;;;;;;;,'..    
+                   .';;;;;;;;;;;;;;;;;;;;;;;;;,'.    
+                 .,;;;;;;;;;;;;;;;;;;;;;;;;;;;;,,'.    
+               .';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;,,,'.   
+              .,;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;,,,,.   
+             .,;;;;;;;;;;;;;;,'......',;;;;;;;;;;;,,,,.   
+            .';;;;;;;;;;;;;'.          .';;;;;;;;;,,,,'.   
+            .;;;;;;;;;;;;,.   ,ldxxdl,   .,;;;;;;;;,,,,.   
+            .''''''''''''.  .dNMMMMMMNd.  .''''''''.....   
+                            :NMMMMMMMMN:                   
+           .;::::::::::::.  ,KMMMMMMMMK,  .;:::::::;;;;'   
+           '0MMMMMMMMMMMWk.  ,xKNWWNKx,  .kWMMMMMMNXXXXd. 
+           .dWMMMMMMMMMMMWO;.  .',,'.  .;OWMMMMMMMNXXX0;   
+            'OMMMMMMMMMMMMMNOo;'....';oONMMMMMMMMWNXXKo.  
+             ,0MMMMMMMMMMMMMMMWNXXXXNWMMMMMMMMMMWNXXXd.   
+              ,OWMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWNXXKo.   
+               .oXMMMMMMMMMMMMMMMMMMMMMMMMMMMMWNXXk;   
+                 'dXWMMMMMMMMMMMMMMMMMMMMMMMMWNXkc.   
+                   .lOXWMMMMMMMMMMMMMMMMMMMWN0o;.   
+                      ':dOKNWMMMMMMMMMMWX0xl,.    
+                          .';cllooooll:;..     
 
 
 
@@ -240,17 +231,14 @@ def get_more_pokemon_data(pb_pokemon_data):
     pokemon_api_response = response.json()
     name = pokemon_api_response["name"]
     print(f"What do you want to know about {name.capitalize()}?")
-    print("\n")
     print("Input 1 for type")
     print("Input 2 for height")
     print("Input 3 for weight")
     print("Input 4 for locations")
     print("Input 5 for moves info")
     print("Input 6 for evolution chain")
-    print("Input 7 to return to main menu")
-
     try:
-        data_select = input("")
+        data_select = input("Input 7 to return to main menu     ")
         if data_select == "1":
             delay_clear()
             print(f"\n{name.capitalize()} has the following type(s):")
@@ -348,15 +336,15 @@ def get_moves_info(pb_pokemon_data):
                 print(x["move"]["name"].capitalize())
                 break
     print("\n")
+        
 
-
-def get_evolution_chain(pokemon):
+def get_evolution_chain(pb_pokemon_data):
     """
     Retrieves evoluton data for selected pokemon
     """
-    capitalized_pokemon = str(pokemon).capitalize()
+    capitalized_pokemon = str(pb_pokemon_data).capitalize()
     response = requests.get(
-        f"https://pokeapi.co/api/v2/pokemon-species/{pokemon.id}/")
+        f"https://pokeapi.co/api/v2/pokemon-species/{pb_pokemon_data.id}/")
     pokemon_species = response.json()
     evolution_data = pokemon_species['evolution_chain']['url']
     response_2 = requests.get(evolution_data)
