@@ -326,15 +326,19 @@ def get_moves_info(pb_pokemon_data):
     response = requests.get(
         f"https://pokeapi.co/api/v2/pokemon/{pb_pokemon_data.id}/")
     selected_pokemon_moves = response.json()["moves"]
-    print(f"{capitalized_pokemon} can learn the following moves:")
+    print(f"Retrieving moves for {capitalized_pokemon}...")
+    moves_learned =[]
     for x in selected_pokemon_moves:
         move_url = x["move"]["url"]
         move_info = requests.get(move_url).json()
         if move_info["generation"]["name"] == "generation-i":
             version_details = x["version_group_details"]
             for y in version_details:
-                print(x["move"]["name"].capitalize())
-                break
+                if y["move_learn_method"]["name"] != "level-up":
+                    moves_learned.append(x["move"]["name"].capitalize())
+                    break
+    print(f"{capitalized_pokemon} can learn the following moves:\n")
+    print(', '.join(moves_learned))
     print("\n")
         
 
