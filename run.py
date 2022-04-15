@@ -173,36 +173,36 @@ def open_description():
     clear_console()
     print("""
     Welcome to your Pokedex.
-    
+
     The Pokedex is a tool based around the first generation of Pokemon. ie
     the first 150 pokemon.
     Connecting to 'PokeAPI', your Pokedex will give you all the information
     you need to find the first generation of pokemon.
 
-    Search for pokemon by name or ID with menu option (2). 
+    Search for pokemon by name or ID with menu option (2).
     Retrieve information such as known locations, evolutionary chains,
     what moves they can learn and more.
 
-    With your pokedex, you can also encounter and catch wild pokemon with 
+    With your pokedex, you can also encounter and catch wild pokemon with
     menu option (3). Choose a habitat to search and come across a random
     pokemon which can be found there.If you like the pokemon you encounter,
     throw a pokeball and add them to your collection.
 
     Once you have caught some pokemon, you can view your collection with menu
-    option (4). Check out what pokemon you've caught so far and generate a 
+    option (4). Check out what pokemon you've caught so far and generate a
     url to check them out in your browser.
 
-    With your pokedex in hand, there is nothing stopping you on your journey 
+    With your pokedex in hand, there is nothing stopping you on your journey
     to becoming a pokemon master. Gotta catch 'em all!
         """)
     menu_return = input("Press enter to return to the main menu")
     if menu_return is None:
-        clear_console() 
+        clear_console()
         open_menu()
     else:
         clear_console()
         open_menu()
-    
+
 
 def find_pokemon():
     """
@@ -434,7 +434,10 @@ def encounter_wild_pokemon():
     gen_1_habitat_pokemon = []
     try:
         habitat_id_selected = int(input(""))
-        selected_habitat = available_habitats[habitat_id_selected - 1]
+        if habitat_id_selected in range(1, 10):
+            selected_habitat = available_habitats[habitat_id_selected - 1]
+        else:
+            raise ValueError
     except ValueError:
         print("Not a valid input")
         time.sleep(0.5)
@@ -449,7 +452,7 @@ def encounter_wild_pokemon():
     for x in pokemon_for_selected_habitat:
         response_2 = requests.get(x["url"])
         pokemon_within_habitat = response_2.json()
-        # Limit the pokemons only to 150 pokemons
+        # Show only first generation pokemon
         if pokemon_within_habitat["id"] < 151:
             gen_1_habitat_pokemon.append(pokemon_within_habitat["name"])
     random_habitat_pokemon = random.choice(gen_1_habitat_pokemon)
@@ -495,6 +498,9 @@ def make_wild_pokemon_choice(pb_pokemon_data):
             raise ValueError
     except ValueError:
         print("Not a valid input")
+        delay_clear()
+        display_flavour_text(pb_pokemon_data)
+        make_wild_pokemon_choice(pb_pokemon_data)
 
 
 def throw_pokeball(pb_pokemon_data):
@@ -606,6 +612,7 @@ def return_or_get_sprite_url():
             raise ValueError
     except ValueError:
         print("\nInvalid input")
+        delay_clear()
         view_caught_pokemon()
         print("\n")
         return_or_get_sprite_url()
