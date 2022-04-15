@@ -582,7 +582,7 @@ def return_or_get_sprite_url():
     i = return_trainer_col_index()
     caught_pokemon = trainer_sheet.col_values(i + 1)
     print("\nIf you would like to view any of your pokemon,",
-          "please enter the number next to their name.")
+          "please enter the number next to  their name.")
     print("Otherwise, enter '0' to return to the main menu")
     view_pokemon_choice = input("")
     try:
