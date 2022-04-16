@@ -1,6 +1,6 @@
 # Pokedex
 
-![Multi Device Mockup](lin)
+![Multi Device Mockup](assets/images/readme/mutli-device.PNG)
 
 [Link to live Site](https://pokedex-pp3.herokuapp.com/)
 
@@ -57,6 +57,7 @@ Beyond, finding information about the first generation of Pokémon, users can en
       ![Initial Chart](assets/images/readme/flow-charts/initial-flow-chart.PNG)
       
     2. Further developed during build:
+      ![Full Chart](assets/images/readme/flow-charts/full-flow-chart.PNG)
 5. ## Surface:
   * This application should provide basic menus with straight forward options for user input.
   * Should provide feedback to the user where API calls cause slight delays in returning information to the terminal.
@@ -167,6 +168,9 @@ As this application leans heavily on user input, a number of try/except statemen
   * #### View Caught Pokemon:
     * As the list of caught Pokémon is taken from column containing the trainer's name, the first test was to ensure that was not printed with the list of Pokémon. This can be verified in the screenshot from the features section.
     * When choice of pokémon was made, it was also tested that the correct url was generated and that each was assigned to the correct cell in the sprite-data worksheet.
+
+  * #### Google Sheets:
+   * Manual testing was carried out when connecting the google sheet with gspread methods and to ensure the credentials were valid. This was done initially by adding values to specific cells and ensuring the data was feeding through.
 
  * ### Code Validation:
   * To ensure the python code written was in line with pep8 standards, it was ran through a [Pep8 online check](http://pep8online.com/). The code returned no errors.
