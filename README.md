@@ -204,7 +204,7 @@ As this application leans heavily on user input, a number of try/except statemen
     ![Flavour text error](assets/images/readme/testing/bugs/flavour-text-error-app.PNG)
     
    2. Flavour text called from PokeAPI:
-    ![Flavour text API](assets/images/readme/testing/bugs/flavour-text-API.PNG)
+    ![Flavour text API](assets/images/readme/testing/bugs/flavour-text-api.PNG)
     
    * Replacing the up arrow with either an empty parenthesis or a space is a double edged sword. Replacing with a space can cause words to stretch over 2 lines. Replacing with an empty parenthesis causes some spacing errors.
    * I feel as though this bug, while irritating, owes to the API and is not so off-putting the user as to remove the flavour text from the app. Printing this text also calls back to the original game series and so the choice was to leave this in as is. I hope to find a fix for it in the future.
@@ -260,41 +260,3 @@ As this application leans heavily on user input, a number of try/except statemen
    
     
  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-google sheet which shows what pokemon have been caught. enter your trainer name, and then saves in a row on a google sheet
-
-text art pokeball:
-https://www.ascii-art-generator.org/
-
-pokedex:
-https://patorjk.com/software/taag/#p=testall&h=3&f=Doh&t=P%20O%20K%20E%20D%20E%20X
-
-where i got clear console:
-https://appdividend.com/2022/01/29/how-to-clear-console-in-python/#:~:text=To%20clear%20the%20console%20in,system()%20method.
-
-https://pokebase.readthedocs.io/en/latest/examples/index.html
-
-favicon: https://www.favicon.cc/?action=icon&file_id=875676
