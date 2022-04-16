@@ -57,7 +57,8 @@ Beyond, finding information about the first generation of Pokémon, users can en
       ![Initial Chart](assets/images/readme/flow-charts/initial-flow-chart.PNG)
       
     2. Further developed during build:
-      ![Full Chart](assets/images/readme/flow-charts/full-flow-chart.PNG)
+      ![Full Chart](assets/images/readme/flow-charts/full-flow-chart.png)
+      
 5. ## Surface:
   * This application should provide basic menus with straight forward options for user input.
   * Should provide feedback to the user where API calls cause slight delays in returning information to the terminal.
