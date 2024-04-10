@@ -9,6 +9,7 @@ import pokebase as pb
 import requests
 import gspread
 from google.oauth2.service_account import Credentials
+from models import Trainer, session
 
 # Constant variables
 GENERATION = 1
@@ -65,6 +66,9 @@ def enter_trainer_name():
             print(f"Welcome back {trainer_name}")
         else:
             print(f"Welcome {trainer_name}")
+            new_trainer = Trainer(name=trainer_name)
+            session.add(new_trainer)
+            session.commit()
             index_to_update = len(trainers_list) + 1
             trainer_sheet.update_cell(1, index_to_update, trainer_name.lower())
             sprites_sheet.update_cell(1, index_to_update, trainer_name.lower())

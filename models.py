@@ -7,11 +7,10 @@ Base = declarative_base()
 class Trainer(Base):
     __tablename__ = "trainers"
 
-    id = Column("id", Integer, primary_key=True)
+    id = Column("id", Integer, primary_key=True, autoincrement=True)
     name = Column("name", String)
 
-    def __init__(self, id, name):
-        self.id = id
+    def __init__(self, name):
         self.name = name
     
     def __repr__(self):
@@ -21,5 +20,5 @@ engine = create_engine("sqlite:///mydb.db", echo=True)
 Base.metadata.create_all(bind=engine)
 
 Session = sessionmaker(bind=engine)
-sesion = Session()
+session = Session()
 
