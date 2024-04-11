@@ -54,16 +54,23 @@ def enter_trainer_name():
     Takes users trainer name to link to any data from previous uses of the app.
     Adds it to linked google sheet if it has not been addded previously.
     """
+    i=0
     trainer_sheet = SHEET.worksheet('trainer_data')
     trainers_list = trainer_sheet.row_values(1)
     sprites_sheet = SHEET.worksheet("sprites_data")
+    existing_trainers = session.query(Trainer.name).all()
+    existing_trainer_names = [trainer[i] for trainer in existing_trainers]
+    print(existing_trainer_names)
     print("Hello trainer. Please enter your name:\n")
     try:
         trainer_name = input("")
+
         if len(trainer_name) == 0:
             raise ValueError("Name cannot be empty")
-        if trainer_name.lower() in trainers_list:
+        # if trainer_name.lower() in trainers_list:
+        if trainer_name in existing_trainer_names:
             print(f"Welcome back {trainer_name}")
+        
         else:
             print(f"Welcome {trainer_name}")
             new_trainer = Trainer(name=trainer_name)
