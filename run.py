@@ -225,19 +225,14 @@ def find_pokemon():
     try:
         selected_pokemon_id_or_name = input("")
         pokemon_names = [pokemon[i] for pokemon in session.query(Pokemon.name).all()]
-        # gen_1_pokemon = [pokemon.name.title()
-        #                  for pokemon in
-        #                  pokemon_generation_data.pokemon_species]
-
         # Name search
-        if selected_pokemon_id_or_name.capitalize() in pokemon_names:
-            pb_pokemon_data = pb.pokemon(selected_pokemon_id_or_name.lower())
+        if selected_pokemon_id_or_name.lower() in pokemon_names:
+            pb_pokemon_data = session.query(Pokemon).filter_by(name=selected_pokemon_id_or_name.lower()).first()
             delay_clear()
             display_pokemon(pb_pokemon_data)
         # Id search
         elif int(selected_pokemon_id_or_name) in range(1, 151):
             pb_pokemon_data = session.query(Pokemon).filter_by(id=int(selected_pokemon_id_or_name)).first()
-            # pb_pokemon_data = pb.pokemon(int(selected_pokemon_id_or_name))
             delay_clear()
             display_pokemon(pb_pokemon_data)
         else:
