@@ -284,7 +284,7 @@ def get_more_pokemon_data(pb_pokemon_data):
     print("Input 1 for type")
     print("Input 2 for height")
     print("Input 3 for weight")
-    print("Input 4 for locations")
+    print("In put 4 for locations")
     print("Input 5 for moves info")
     print("Input 6 for evolution chain")
     try:
