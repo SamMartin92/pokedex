@@ -286,9 +286,6 @@ def get_more_pokemon_data(pb_pokemon_data):
             print(f"1. {pb_pokemon_data.type1.capitalize()}")
             if pb_pokemon_data.type2 is not None:
                 print(f"2. {pb_pokemon_data.type2.capitalize()}")
-            # for type_slot in pb_pokemon_data.types:
-            #     print('{}: {}'.format(type_slot.slot,
-            #             type_slot.type.name.title()))
                 print("\n")
         elif data_select == "2":
             delay_clear()

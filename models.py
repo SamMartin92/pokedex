@@ -1,15 +1,22 @@
 import requests
 from sqlalchemy import create_engine, ForeignKey, Column, String, Integer, Text
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
 
 Base = declarative_base()
+
+association_table = Table(
+    'association', Base.metadata,
+    Column('trainer_id', Integer, ForeignKey('trainers.id')),
+    Column('pokemon_id', Integer, ForeignKey('pokemons.id'))
+)
 
 class Trainer(Base):
     __tablename__ = "trainers"
 
     id = Column("id", Integer, primary_key=True, autoincrement=True)
     name = Column("name", String)
+    pokemon = relationship('Pokemon', secondary=association_table, back_populates='trainers')
 
     def __init__(self, name):
         self.name = name
@@ -29,6 +36,7 @@ class Pokemon(Base):
     weight = Column("weight", Integer)
     type1 = Column("type1", String)
     type2 = Column("type2", String)
+    trainers= relationship('Trainer', secondary=association_table, back_populates='pokemons')
 
     def __init__(self, id, name, description1, description2,  height, weight, type1, type2):
         self.id = id
