@@ -48,25 +48,25 @@ session = Session()
 
 
 
-for i in range(1,152):
-    species_response = requests.get(
-            f"https://pokeapi.co/api/v2/pokemon-species/{i}/")
-    pokemon_species_api_response = species_response.json()
-    response = requests.get(
-            f"https://pokeapi.co/api/v2/pokemon/{i}/")
-    pokemon_api_response = response.json()
-    name = pokemon_api_response["name"]
-    description = pokemon_species_api_response["flavor_text_entries"]
-    description1 = f"{description[1]['flavor_text'].replace('↑', ' ')}"
-    if description[1]['flavor_text'] == description[2]['flavor_text']:
-        description2 = f"{description[5]['flavor_text'].replace('↑', ' ')}"
-    else:
-        description2 = f"{description[2]['flavor_text'].replace('↑', ' ')}"
-    height = pokemon_api_response["height"]
-    weight = pokemon_api_response["weight"]
+# for i in range(1,152):
+#     species_response = requests.get(
+#             f"https://pokeapi.co/api/v2/pokemon-species/{i}/")
+#     pokemon_species_api_response = species_response.json()
+#     response = requests.get(
+#             f"https://pokeapi.co/api/v2/pokemon/{i}/")
+#     pokemon_api_response = response.json()
+#     name = pokemon_api_response["name"]
+#     description = pokemon_species_api_response["flavor_text_entries"]
+#     description1 = f"{description[1]['flavor_text'].replace('↑', ' ')}"
+#     if description[1]['flavor_text'] == description[2]['flavor_text']:
+#         description2 = f"{description[5]['flavor_text'].replace('↑', ' ')}"
+#     else:
+#         description2 = f"{description[2]['flavor_text'].replace('↑', ' ')}"
+#     height = pokemon_api_response["height"]
+#     weight = pokemon_api_response["weight"]
 
-    pokemon = Pokemon(id=i, name=name, description1=description1, description2=description2, height=height, weight=weight)
-    session.add(pokemon)
+#     pokemon = Pokemon(id=i, name=name, description1=description1, description2=description2, height=height, weight=weight)
+#     session.add(pokemon)
 
-session.commit()
-session.close()
+# session.commit()
+# session.close()

@@ -9,7 +9,7 @@ import pokebase as pb
 import requests
 import gspread
 from google.oauth2.service_account import Credentials
-from models import Trainer, session
+from models import Trainer, Pokemon, session
 
 # Constant variables
 GENERATION = 1
@@ -60,7 +60,6 @@ def enter_trainer_name():
     sprites_sheet = SHEET.worksheet("sprites_data")
     existing_trainers = session.query(Trainer.name).all()
     existing_trainer_names = [trainer[i] for trainer in existing_trainers]
-    print(existing_trainer_names)
     print("Hello trainer. Please enter your name:\n")
     try:
         trainer_name = input("")
@@ -220,22 +219,25 @@ def find_pokemon():
     Allows user to key in name or id of pokemon and
     seek out information about it
     """
+    i=0
     print("Please enter the name or id (1-150) of the pokemon you wish to",
           "search for:")
     try:
         selected_pokemon_id_or_name = input("")
-        gen_1_pokemon = [pokemon.name.title()
-                         for pokemon in
-                         pokemon_generation_data.pokemon_species]
+        pokemon_names = [pokemon[i] for pokemon in session.query(Pokemon.name).all()]
+        # gen_1_pokemon = [pokemon.name.title()
+        #                  for pokemon in
+        #                  pokemon_generation_data.pokemon_species]
 
         # Name search
-        if selected_pokemon_id_or_name.capitalize() in gen_1_pokemon:
+        if selected_pokemon_id_or_name.capitalize() in pokemon_names:
             pb_pokemon_data = pb.pokemon(selected_pokemon_id_or_name.lower())
             delay_clear()
             display_pokemon(pb_pokemon_data)
         # Id search
         elif int(selected_pokemon_id_or_name) in range(1, 151):
-            pb_pokemon_data = pb.pokemon(int(selected_pokemon_id_or_name))
+            pb_pokemon_data = session.query(Pokemon).filter_by(id=int(selected_pokemon_id_or_name)).first()
+            # pb_pokemon_data = pb.pokemon(int(selected_pokemon_id_or_name))
             delay_clear()
             display_pokemon(pb_pokemon_data)
         else:
@@ -257,18 +259,20 @@ def display_flavour_text(pb_pokemon_data):
     """
     Prints out two short descriptions about selected pokemon
     """
-    response = requests.get(
-        f"https://pokeapi.co/api/v2/pokemon-species/{pb_pokemon_data.id}/")
-    pokemon_api_response = response.json()
-    name = pokemon_api_response["name"]
-    description = pokemon_api_response["flavor_text_entries"]
-    print(f"Pokemon number {pb_pokemon_data.id}: {name.capitalize()}")
-    print(f"Some information about {name.capitalize()}:\n")
-    print(f"{description[1]['flavor_text'].replace('', ' ')}\n")
-    if description[1]['flavor_text'] == description[2]['flavor_text']:
-        print(f"{description[5]['flavor_text'].replace('', '')}")
-    else:
-        print(f"{description[2]['flavor_text'].replace('', '')}")
+    # response = requests.get(
+    #     f"https://pokeapi.co/api/v2/pokemon-species/{pb_pokemon_data.id}/")
+    # pokemon_api_response = response.json()
+    # name = pokemon_api_response["name"]
+    # description = pokemon_api_response["flavor_text_entries"]
+    print(f"Pokemon number {pb_pokemon_data.id}: {pb_pokemon_data.name.capitalize()}")
+    print(f"Some information about {pb_pokemon_data.name.capitalize()}:\n")
+    print(pb_pokemon_data.description1)
+    print("\n")
+    print(pb_pokemon_data.description2)
+    # if description[1]['flavor_text'] == description[2]['flavor_text']:
+    #     print(f"{description[5]['flavor_text'].replace('', '')}")
+    # else:
+    #     print(f"{description[2]['flavor_text'].replace('', '')}")
     print("\n")
 
 
