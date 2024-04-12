@@ -254,20 +254,12 @@ def display_flavour_text(pb_pokemon_data):
     """
     Prints out two short descriptions about selected pokemon
     """
-    # response = requests.get(
-    #     f"https://pokeapi.co/api/v2/pokemon-species/{pb_pokemon_data.id}/")
-    # pokemon_api_response = response.json()
-    # name = pokemon_api_response["name"]
-    # description = pokemon_api_response["flavor_text_entries"]
-    print(f"Pokemon number {pb_pokemon_data.id}: {pb_pokemon_data.name.capitalize()}")
-    print(f"Some information about {pb_pokemon_data.name.capitalize()}:\n")
+    name = pb_pokemon_data.name
+    print(f"Pokemon number {pb_pokemon_data.id}: {name.capitalize()}")
+    print(f"Some information about {name.capitalize()}:\n")
     print(pb_pokemon_data.description1)
     print("\n")
     print(pb_pokemon_data.description2)
-    # if description[1]['flavor_text'] == description[2]['flavor_text']:
-    #     print(f"{description[5]['flavor_text'].replace('', '')}")
-    # else:
-    #     print(f"{description[2]['flavor_text'].replace('', '')}")
     print("\n")
 
 
@@ -278,7 +270,7 @@ def get_more_pokemon_data(pb_pokemon_data):
     response = requests.get(
         f"https://pokeapi.co/api/v2/pokemon-species/{pb_pokemon_data.id}/")
     pokemon_api_response = response.json()
-    name = pokemon_api_response["name"]
+    name = pb_pokemon_data.name
     print(f"What do you want to know about {name.capitalize()}?")
     print("Input 1 for type")
     print("Input 2 for height")
@@ -291,10 +283,13 @@ def get_more_pokemon_data(pb_pokemon_data):
         if data_select == "1":
             delay_clear()
             print(f"\n{name.capitalize()} has the following type(s):")
-            for type_slot in pb_pokemon_data.types:
-                print('{}: {}'.format(type_slot.slot,
-                      type_slot.type.name.title()))
-            print("\n")
+            print(f"1. {pb_pokemon_data.type1.capitalize()}")
+            if pb_pokemon_data.type2 is not None:
+                print(f"2. {pb_pokemon_data.type2.capitalize()}")
+            # for type_slot in pb_pokemon_data.types:
+            #     print('{}: {}'.format(type_slot.slot,
+            #             type_slot.type.name.title()))
+                print("\n")
         elif data_select == "2":
             delay_clear()
             print(f"\n{name.capitalize()} is {pb_pokemon_data.height}",
